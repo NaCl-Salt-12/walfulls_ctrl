@@ -3,6 +3,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64MultiArray, Int32, String
+from motor_interfaces.msg import MotorState  # Add this import
 import time
 import numpy as np
 
@@ -106,8 +107,16 @@ class MainControlLoop(Node):
         # )
 
         time.sleep(0.1)
+        self.knee_sub = self.create_subscription(
+            MotorState,  # Changed from String to MotorState
+            '/knee/motor_state',
+            self.knee_state_callback,
+            subscriber_qos,
+        )
+
+        time.sleep(0.1)
         self.hip_sub = self.create_subscription(
-            String,
+            MotorState,  # Changed from String to MotorState
             '/hip/motor_state',
             self.hip_state_callback,
             subscriber_qos,
@@ -240,14 +249,11 @@ class MainControlLoop(Node):
     def knee_state_callback(self, msg):
         """Callback for knee state information"""
         try:
-            # Assuming the message contains motor state data as a string
-            # Parse the motor state data (adjust format based on actual message structure)
-            state_data = msg.data
-            self.get_logger().debug(f"Knee motor state: {state_data}")
+            # Update knee state variables with actual motor state data
+            self.knee_pos = msg.abs_position  # Use absolute position for control
+            self.knee_vel = msg.velocity
             
-            # Parse state information if needed
-            # Example: if state_data contains position, velocity, etc.
-            # You may need to adjust this based on the actual message format
+            self.get_logger().debug(f"Knee state - Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Torque: {msg.torque:.3f}")
             
         except Exception as e:
             self.get_logger().error(f"Error processing knee state: {e}")
@@ -255,14 +261,11 @@ class MainControlLoop(Node):
     def hip_state_callback(self, msg):
         """Callback for hip state information"""
         try:
-            # Assuming the message contains motor state data as a string
-            # Parse the motor state data (adjust format based on actual message structure)
-            state_data = msg.data
-            self.get_logger().debug(f"Hip motor state: {state_data}")
+            # Update hip state variables with actual motor state data
+            self.hip_pos = msg.abs_position  # Use absolute position for control
+            self.hip_vel = msg.velocity
             
-            # Parse state information if needed
-            # Example: if state_data contains position, velocity, etc.
-            # You may need to adjust this based on the actual message format
+            self.get_logger().debug(f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg.torque:.3f}")
             
         except Exception as e:
             self.get_logger().error(f"Error processing hip state: {e}")
