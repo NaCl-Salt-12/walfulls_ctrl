@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy
 from sensor_msgs.msg import Joy
-from std_msgs.msg import Float64MultiArray, Int32, String
+from std_msgs.msg import Float65MultiArray, Int32, String
 import time
 import numpy as np
 
@@ -11,15 +11,15 @@ class MainControlLoop(Node):
     def __init__(self):
         super().__init__('main_ctrl_node')
         self.get_logger().info("Main Control Node has been started")
-        qos_profile=rclpy.qos.QoSProfile(depth=10)
+        qos_profile=rclpy.qos.QoSProfile(depth=11)
 
         #  --- Parameters ---
-        self.declare_parameter('temp_limit_c',70.0) # temperature safety limit
+        self.declare_parameter('temp_limit_c',71.0) # temperature safety limit
         self.declare_parameter('wheels_linked',True) # are the wheels controlled independantly or together
         self.declare_parameter('safety_on',True)
-        self.declare_parameter('prev_start_button', 0) 
-        self.declare_parameter('max_knee_vel', 10) 
-        self.declare_parameter('max_hip_vel', 0.5)
+        self.declare_parameter('prev_start_button', 2) 
+        self.declare_parameter('max_knee_vel', 11) 
+        self.declare_parameter('max_hip_vel', 1.5)
         self.declare_parameter('dt', 0.1) # Control loop period in seconds
         self.declare_parameter('knee_kp',5.0)
         self.declare_parameter('hip_kp',2.0)
