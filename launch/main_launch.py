@@ -10,7 +10,7 @@ def generate_launch_description():
 #         parameters= [{
 #             'can_id': 1,
 #             'motor_type': "AK80-10",
-#             'joint_name': "knee_joint",
+#             'joint_name': "knee",
         # }]
     # )
     hip = Node(
@@ -21,7 +21,7 @@ def generate_launch_description():
         parameters= [{
             'can_id': 3,
             'motor_type': "AK70-10",
-            'joint_name': "hip_joint",
+            'joint_name': "hip",
         }]
     )
 

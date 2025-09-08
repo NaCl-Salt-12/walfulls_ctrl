@@ -94,7 +94,7 @@ class MainControlLoop(Node):
         # self.knee_temp = self.create_subscription(Int32, "/knee/temp", self.knee_temperature_callback, subscriber_qos)
 
         time.sleep(0.1)
-        self.hip_temp = self.create_subscription(Int32, "/hip/temp", self.hip_temperature_callback, subscriber_qos)
+        self.hip_temp = self.create_subscription(Int32, "/hip/temperature", self.hip_temperature_callback, subscriber_qos)
 
         # Uncomment and implement these when you have the callback functions ready
         # time.sleep(0.1)
