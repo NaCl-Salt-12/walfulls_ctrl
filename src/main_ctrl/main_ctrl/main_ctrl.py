@@ -3,7 +3,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64MultiArray, Int32, String
-from motor_interfaces.msg import MotorState  # Add this import
+from motor_interfaces.msg import MotorState
 import time
 import numpy as np
 
@@ -17,8 +17,6 @@ class MainControlLoop(Node):
         #  --- Parameters ---
         self.declare_parameter('temp_limit_c', 71.0)  # temperature safety limit
         self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
-        # self.declare_parameter('safety_on', True)
-        self.declare_parameter('prev_start_button', 0)  # Changed from 2 to 0
         self.declare_parameter('max_knee_vel', 11.0) 
         self.declare_parameter('max_hip_vel', 1.5)
         self.declare_parameter('dt', 0.1)  # Control loop period in seconds
@@ -30,8 +28,6 @@ class MainControlLoop(Node):
         # Retrieve parameters 
         self.temp_limit_c = self.get_parameter('temp_limit_c').value
         self.wheels_linked = self.get_parameter('wheels_linked').value
-        # self.safety_on = self.get_parameter('safety_on').value
-        self.prev_start_button = self.get_parameter('prev_start_button').value
         self.max_knee_vel = self.get_parameter('max_knee_vel').value
         self.max_hip_vel = self.get_parameter('max_hip_vel').value
         self.dt = self.get_parameter('dt').value
@@ -58,8 +54,8 @@ class MainControlLoop(Node):
         self.des_hip_splay = 0.0
 
         # Initialize publishers to None
-        self.knee_cmd = None
-        self.hip_cmd = None
+        self.knee_cmd_pub = None
+        self.hip_cmd_pub = None
         self.knee_special = None
         self.hip_special = None
 
@@ -92,104 +88,106 @@ class MainControlLoop(Node):
         )
 
         time.sleep(0.1)
-        self.knee_temp = self.create_subscription(Int32, "/knee/temperature", self.knee_temperature_callback, subscriber_qos)  # Fixed topic name
+        self.knee_temp = self.create_subscription(Int32, "/knee/temperature", self.knee_temperature_callback, subscriber_qos)
 
         time.sleep(0.1)
         self.hip_temp = self.create_subscription(Int32, "/hip/temperature", self.hip_temperature_callback, subscriber_qos)
+        
         time.sleep(0.1)
-        self.knee_sub = self.create_subscription( MotorState,  # Changed from String to MotorState '/knee/motor_state', self.knee_state_callback, subscriber_qos,
+        self.knee_sub = self.create_subscription(
+            MotorState,
+            '/knee/motor_state',
+            self.knee_state_callback,
+            subscriber_qos
         )
 
         time.sleep(0.1)
         self.hip_sub = self.create_subscription(
-            MotorState,  # Changed from String to MotorState
+            MotorState,
             '/hip/motor_state',
             self.hip_state_callback,
-            subscriber_qos,
+            subscriber_qos
         )
+        
         start_msg = String()
         start_msg.data = "start"
 
-        self.knee_special.publish(start_msg)  # Uncomment this
+        self.knee_special.publish(start_msg)
         self.hip_special.publish(start_msg)
 
         self.get_logger().info("Motors started")
-        self.motors_initialized = True  # Fixed variable name
+        self.motors_initialized = True
 
     def joy_callback(self, msg):
-        # --- Mapping ---
-        
-        # button mapping
-        x_button = msg.buttons[0]
-        a_button = msg.buttons[1]
-        b_button = msg.buttons[2]
-        y_button = msg.buttons[3]
-        left_bumper = msg.buttons[4]
-        right_bumper = msg.buttons[5]
-
-        # axes mapping (fixed indices)
-        if len(msg.axes) > 5:
-            dpad_ud = msg.axes[5]  # D-pad up/down
-        else:
-            dpad_ud = 0.0
+        try:
+            # --- Mapping ---
             
-        if len(msg.axes) > 4:
-            right_stick_ud = msg.axes[4]  # Right stick up/down
-        else:
-            right_stick_ud = 0.0
-            
-        if len(msg.axes) > 3:
-            right_stick_lr = msg.axes[3]  # Right stick left/right
-        else:
-            right_stick_lr = 0.0
+            # button mapping
+            x_button = msg.buttons[0]
+            a_button = msg.buttons[1]
+            b_button = msg.buttons[2]
+            y_button = msg.buttons[3]
+            left_bumper = msg.buttons[4]
+            right_bumper = msg.buttons[5]
 
+            # axes mapping (fixed indices)
+            if len(msg.axes) > 5:
+                dpad_ud = msg.axes[5]  # D-pad up/down
+            else:
+                dpad_ud = 0.0
+                
+            if len(msg.axes) > 4:
+                right_stick_ud = msg.axes[4]  # Right stick up/down
+            else:
+                right_stick_ud = 0.0
+                
+            if len(msg.axes) > 3:
+                right_stick_lr = msg.axes[3]  # Right stick left/right
+            else:
+                right_stick_lr = 0.0
 
-           
-        # Initialize motors if not already done
-        if not self.motors_initialized:
-            self.initialize_motors()
+            # Initialize motors if not already done
+            if not self.motors_initialized:
+                self.initialize_motors()
 
-        if self.motors_initialized:
-            # Map joystick to knee velocities
-            knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
-            # Ensure velocities are within limits 
-            knee_vel = max(min(knee_vel, self.max_knee_vel), -self.max_knee_vel)
+            if self.motors_initialized and not self.shutdown_triggered:
+                # Map joystick to knee velocities
+                knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
+                # Ensure velocities are within limits 
+                knee_vel = max(min(knee_vel, self.max_knee_vel), -self.max_knee_vel)
 
-            # Calculate Desired position
-            knee_des_pos = self.knee_pos + knee_vel * self.dt
+                # Calculate Desired position
+                knee_des_pos = self.knee_pos + knee_vel * self.dt
 
-            # Hip velocities
-            self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
-            self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle)
+                # Hip velocities
+                self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
+                self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle)
 
-            # Create and publish knee command
-            knee_cmd_msg = Float64MultiArray()
-            knee_cmd_msg.data = [
-                knee_des_pos,
-                self.knee_vel, 
-                self.knee_kp,
-                self.knee_kd,
-                self.knee_torque
-            ]
-            if self.knee_cmd_pub:
-                self.knee_cmd_pub.publish(knee_cmd_msg)
+                # Create and publish knee command
+                knee_cmd_msg = Float64MultiArray()
+                knee_cmd_msg.data = [
+                    knee_des_pos,
+                    self.knee_vel, 
+                    self.knee_kp,
+                    self.knee_kd,
+                    self.knee_torque
+                ]
+                if self.knee_cmd_pub:
+                    self.knee_cmd_pub.publish(knee_cmd_msg)
 
-            # Create and publish hip command
-            hip_cmd_msg = Float64MultiArray()
-            hip_cmd_msg.data = [
-                self.des_hip_splay,
-                self.hip_vel, 
-                self.hip_kp,
-                self.hip_kd,
-                self.hip_torque
-            ]
-            if self.hip_cmd_pub:
-                self.hip_cmd_pub.publish(hip_cmd_msg)
-
-    def nearest_pi_knee(self, angle):
-        value = 0.5 * 6 * 30 / 15
-        near_pi = np.round(angle / value) * value
-        return near_pi
+                # Create and publish hip command
+                hip_cmd_msg = Float64MultiArray()
+                hip_cmd_msg.data = [
+                    self.des_hip_splay,
+                    self.hip_vel, 
+                    self.hip_kp,
+                    self.hip_kd,
+                    self.hip_torque
+                ]
+                if self.hip_cmd_pub:
+                    self.hip_cmd_pub.publish(hip_cmd_msg)
+        except Exception as e:
+            self.get_logger().error(f"Error in joy_callback: {e}")
 
     def knee_temperature_callback(self, msg):
         """
@@ -230,13 +228,13 @@ class MainControlLoop(Node):
         if self.hip_special:
             self.hip_special.publish(special_msg)
 
-    # Placeholder callback functions for future implementation
     def knee_state_callback(self, msg):
         """Callback for knee state information"""
         try:
             # Update knee state variables with actual motor state data
             self.knee_pos = msg.abs_position  # Use absolute position for control
             self.knee_vel = msg.velocity
+            self.knee_torque = msg.torque  # Update torque value
             
             self.get_logger().debug(f"Knee state - Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Torque: {msg.torque:.3f}")
             
@@ -249,6 +247,7 @@ class MainControlLoop(Node):
             # Update hip state variables with actual motor state data
             self.hip_pos = msg.abs_position  # Use absolute position for control
             self.hip_vel = msg.velocity
+            self.hip_torque = msg.torque  # Update torque value
             
             self.get_logger().debug(f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg.torque:.3f}")
             
