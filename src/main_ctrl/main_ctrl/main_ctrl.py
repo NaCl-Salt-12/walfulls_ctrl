@@ -100,35 +100,18 @@ class MainControlLoop(Node):
         # time.sleep(0.1)
         # self.knee_sub = self.create_subscription(
         #     String,
-        #     '/knee/state_line',
+        #     '/knee/motor_state',
         #     self.knee_state_callback,
         #     subscriber_qos,
         # )
 
-        # time.sleep(0.1)
-        # self.hip_sub = self.create_subscription(
-        #     String,
-        #     '/hip/state_line',
-        #     self.hip_state_callback,
-        #     subscriber_qos,
-        # )
-
-        # time.sleep(0.1)
-        # self.knee_joint_state = self.create_subscription(
-        #     String,
-        #     '/knee/joint_state',
-        #     self.knee_joint_callback,
-        #     subscriber_qos,
-        # )
-
-        # time.sleep(0.1)
-        # self.hip_joint_state = self.create_subscription(
-        #     String,
-        #     '/hip/joint_state',
-        #     self.hip_joint_callback,
-        #     subscriber_qos,
-        # )
-
+        time.sleep(0.1)
+        self.hip_sub = self.create_subscription(
+            String,
+            '/hip/motor_state',
+            self.hip_state_callback,
+            subscriber_qos,
+        )
         start_msg = String()
         start_msg.data = "start"
 
@@ -256,19 +239,33 @@ class MainControlLoop(Node):
     # Placeholder callback functions for future implementation
     def knee_state_callback(self, msg):
         """Callback for knee state information"""
-        pass
+        try:
+            # Assuming the message contains motor state data as a string
+            # Parse the motor state data (adjust format based on actual message structure)
+            state_data = msg.data
+            self.get_logger().debug(f"Knee motor state: {state_data}")
+            
+            # Parse state information if needed
+            # Example: if state_data contains position, velocity, etc.
+            # You may need to adjust this based on the actual message format
+            
+        except Exception as e:
+            self.get_logger().error(f"Error processing knee state: {e}")
 
     def hip_state_callback(self, msg):
         """Callback for hip state information"""
-        pass
-
-    def knee_joint_callback(self, msg):
-        """Callback for knee joint state"""
-        pass
-
-    def hip_joint_callback(self, msg):
-        """Callback for hip joint state"""
-        pass
+        try:
+            # Assuming the message contains motor state data as a string
+            # Parse the motor state data (adjust format based on actual message structure)
+            state_data = msg.data
+            self.get_logger().debug(f"Hip motor state: {state_data}")
+            
+            # Parse state information if needed
+            # Example: if state_data contains position, velocity, etc.
+            # You may need to adjust this based on the actual message format
+            
+        except Exception as e:
+            self.get_logger().error(f"Error processing hip state: {e}")
 
 def main():
     rclpy.init()
