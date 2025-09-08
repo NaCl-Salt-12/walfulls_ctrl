@@ -92,7 +92,7 @@ class MainControlLoop(Node):
         )
 
         time.sleep(0.1)
-        # self.knee_temp = self.create_subscription(Int32, "/knee/temp", self.knee_temperature_callback, subscriber_qos)
+        self.knee_temp = self.create_subscription(Int32, "/knee/temperature", self.knee_temperature_callback, subscriber_qos)  # Fixed topic name
 
         time.sleep(0.1)
         self.hip_temp = self.create_subscription(Int32, "/hip/temperature", self.hip_temperature_callback, subscriber_qos)
@@ -124,7 +124,7 @@ class MainControlLoop(Node):
         start_msg = String()
         start_msg.data = "start"
 
-        # self.knee_special.publish(start_msg)
+        self.knee_special.publish(start_msg)  # Uncomment this
         self.hip_special.publish(start_msg)
 
         self.get_logger().info("Motors started")
@@ -178,16 +178,16 @@ class MainControlLoop(Node):
             self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle)
 
             # Create and publish knee command
-            # knee_cmd_msg = Float64MultiArray()
-            # knee_cmd_msg.data = [
-            #     knee_des_pos,
-            #     self.knee_vel, 
-            #     self.knee_kp,
-            #     self.knee_kd,
-            #     self.knee_torque
-            # ]
-            # if self.knee_cmd_pub:
-            #     self.knee_cmd_pub.publish(knee_cmd_msg)
+            knee_cmd_msg = Float64MultiArray()
+            knee_cmd_msg.data = [
+                knee_des_pos,
+                self.knee_vel, 
+                self.knee_kp,
+                self.knee_kd,
+                self.knee_torque
+            ]
+            if self.knee_cmd_pub:
+                self.knee_cmd_pub.publish(knee_cmd_msg)
 
             # Create and publish hip command
             hip_cmd_msg = Float64MultiArray()
