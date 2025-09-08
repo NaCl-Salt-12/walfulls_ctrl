@@ -20,7 +20,7 @@ class MainControlLoop(Node):
         self.declare_parameter('prev_start_button', 0)  # Changed from 2 to 0
         self.declare_parameter('max_knee_vel', 11.0) 
         self.declare_parameter('max_hip_vel', 1.5)
-        self.declare_parameter('dt', 0.1)  # Control loop period in seconds
+        self.declare_parameter('dt', 0.05)  # Control loop period in seconds
         self.declare_parameter('knee_kp', 5.0)
         self.declare_parameter('hip_kp', 2.0)
         self.declare_parameter('knee_kd', 1.0)
@@ -97,37 +97,21 @@ class MainControlLoop(Node):
         self.hip_temp = self.create_subscription(Int32, "/hip/temp", self.hip_temperature_callback, subscriber_qos)
 
         # Uncomment and implement these when you have the callback functions ready
-        # time.sleep(0.1)
-        # self.knee_sub = self.create_subscription(
-        #     String,
-        #     '/knee/state_line',
-        #     self.knee_state_callback,
-        #     subscriber_qos,
-        # )
+        time.sleep(0.1)
+        self.knee_sub = self.create_subscription(
+            String,
+            '/knee/motor_state',
+            self.knee_state_callback,
+            subscriber_qos,
+        )
 
-        # time.sleep(0.1)
-        # self.hip_sub = self.create_subscription(
-        #     String,
-        #     '/hip/state_line',
-        #     self.hip_state_callback,
-        #     subscriber_qos,
-        # )
-
-        # time.sleep(0.1)
-        # self.knee_joint_state = self.create_subscription(
-        #     String,
-        #     '/knee/joint_state',
-        #     self.knee_joint_callback,
-        #     subscriber_qos,
-        # )
-
-        # time.sleep(0.1)
-        # self.hip_joint_state = self.create_subscription(
-        #     String,
-        #     '/hip/joint_state',
-        #     self.hip_joint_callback,
-        #     subscriber_qos,
-        # )
+        time.sleep(0.1)
+        self.hip_sub = self.create_subscription(
+            String,
+            '/hip/motor_state',
+            self.hip_state_callback,
+            subscriber_qos,
+        )
 
         start_msg = String()
         start_msg.data = "start"
@@ -272,22 +256,60 @@ class MainControlLoop(Node):
         if self.hip_special:
             self.hip_special.publish(special_msg)
 
-    # Placeholder callback functions for future implementation
     def knee_state_callback(self, msg):
         """Callback for knee state information"""
-        pass
+        try:
+            # Assuming msg.data format: "pos,vel,torque" or similar comma-separated values
+            state_data = msg.data.strip().split(',')
+            if len(state_data) >= 2:
+                self.knee_pos = float(state_data[0])
+                self.knee_vel = float(state_data[1])
+                if len(state_data) >= 3:
+                    self.knee_torque = float(state_data[2])
+        except (ValueError, IndexError) as e:
+            self.get_logger().warn(f"Failed to parse knee state data: {msg.data}, error: {e}")
 
     def hip_state_callback(self, msg):
         """Callback for hip state information"""
-        pass
+        try:
+            # Assuming msg.data format: "pos,vel,torque" or similar comma-separated values
+            state_data = msg.data.strip().split(',')
+            if len(state_data) >= 2:
+                self.hip_pos = float(state_data[0])
+                self.hip_vel = float(state_data[1])
+                if len(state_data) >= 3:
+                    self.hip_torque = float(state_data[2])
+        except (ValueError, IndexError) as e:
+            self.get_logger().warn(f"Failed to parse hip state data: {msg.data}, error: {e}")
 
     def knee_joint_callback(self, msg):
         """Callback for knee joint state"""
-        pass
+        try:
+            # Alternative parsing if joint state has different format
+            # This might be used if you have separate joint state topics
+            joint_data = msg.data.strip().split(',')
+            if len(joint_data) >= 2:
+                joint_pos = float(joint_data[0])
+                joint_vel = float(joint_data[1])
+                # You might want to apply any transformations here
+                self.knee_pos = joint_pos
+                self.knee_vel = joint_vel
+        except (ValueError, IndexError) as e:
+            self.get_logger().warn(f"Failed to parse knee joint data: {msg.data}, error: {e}")
 
     def hip_joint_callback(self, msg):
         """Callback for hip joint state"""
-        pass
+        try:
+            # Alternative parsing if joint state has different format
+            joint_data = msg.data.strip().split(',')
+            if len(joint_data) >= 2:
+                joint_pos = float(joint_data[0])
+                joint_vel = float(joint_data[1])
+                # You might want to apply any transformations here
+                self.hip_pos = joint_pos
+                self.hip_vel = joint_vel
+        except (ValueError, IndexError) as e:
+            self.get_logger().warn(f"Failed to parse hip joint data: {msg.data}, error: {e}")
 
 def main():
     rclpy.init()
