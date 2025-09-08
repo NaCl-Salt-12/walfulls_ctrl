@@ -25,7 +25,6 @@ class MainControlLoop(Node):
         self.declare_parameter('hip_kp',2.0)
         self.declare_parameter('knee_kd',1.0)
         self.declare_parameter('hip_kd',2.0)
-        self.declare_parameter('prev_start_button', 0)
 
 
         # Retrieve parameters 
@@ -39,7 +38,7 @@ class MainControlLoop(Node):
         self.knee_kp = self.get_parameter('knee_kp').value
         self.hip_kp = self.get_parameter('hip_kp').value
         self.knee_kd = self.get_parameter('knee_kd').value
-        self.hip_kp = self.get_parameter('hip_kd').value
+        self.hip_kd = self.get_parameter('hip_kd').value
 
 
         # --- State Variables ---
