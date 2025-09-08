@@ -2,17 +2,17 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    knee = Node(
-        package='cubemars_v2_ros',
-        executable='motor_node',
-        name='knee_motor_node',
-        namespace='knee',
-        parameters= [{
-            'can_id': 1,
-            'motor_type': "AK80-10",
-            'joint_name': "knee_joint",
-        }]
-    )
+#     knee = Node(
+#         package='cubemars_v2_ros',
+#         executable='motor_node',
+#         name='knee_motor_node',
+#         namespace='knee',
+#         parameters= [{
+#             'can_id': 1,
+#             'motor_type': "AK80-10",
+#             'joint_name': "knee_joint",
+        # }]
+    # )
     hip = Node(
         package='cubemars_v2_ros',
         executable='motor_node',
@@ -46,7 +46,7 @@ def generate_launch_description():
         }]
     )
     return LaunchDescription([
-        knee,
+        # knee,
         hip,
         main_ctrl,
         joystick,
