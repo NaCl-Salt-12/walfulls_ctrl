@@ -72,9 +72,9 @@ class MainControlLoop(Node):
         self.get_logger().info("Initiallizing Motors...")
 
         # One leg
-        self.knee_cmd = self.create_publisher(Float64MultiArray, '/knee/mit_cmd',qos_profile)
+        # self.knee_cmd = self.create_publisher(Float64MultiArray, '/knee/mit_cmd',qos_profile)
         self.hip_cmd = self.create_publisher(Float64MultiArray, '/hip/mit_cmd',qos_profile)
-        self.knee_special = self.create_publisher(String, '/knee/special_cmd',qos_profile)
+        # self.knee_special = self.create_publisher(String, '/knee/special_cmd',qos_profile)
         self.hip_special = self.create_publisher(String, '/hip/special_cmd',qos_profile)
 
         subsciber_qos = rclpy.qos.QoSProfile(
@@ -84,7 +84,7 @@ class MainControlLoop(Node):
         )
 
         time.sleep(0.1)
-        self.knee_temp = self.create_subscription(Int32, "/knee/temp", self.temperature_callback, subsciber_qos)
+        # self.knee_temp = self.create_subscription(Int32, "/knee/temp", self.temperature_callback, subsciber_qos)
 
         time.sleep(0.1)
         self.hip_temp = self.create_subscription(Int32, "/hip/temp", self.temperature_callback, subsciber_qos)
@@ -127,7 +127,7 @@ class MainControlLoop(Node):
 
         start_msg = String(data="start")
 
-        self.knee_special.publish(start_msg)
+        # self.knee_special.publish(start_msg)
         self.hip_special.publish(start_msg)
 
         self.get_logger().info("Leg started")
@@ -144,7 +144,7 @@ class MainControlLoop(Node):
             if(self.safety_on):
                 spc_msg = String(data="clear")
                 self.hip_special.publish(spc_msg)
-                self.knee_special.publish(spc_msg)
+                # self.knee_special.publish(spc_msg)
 
         self.prev_start_button = msg.buttons[9] 
 
