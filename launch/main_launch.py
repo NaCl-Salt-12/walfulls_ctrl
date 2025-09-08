@@ -31,8 +31,7 @@ def generate_launch_description():
         name='main_ctrl_node',
         parameters= [{
             'temp_limit_c':80.0, # temperature safety limit
-            'wheels_linked':True, # are the wheels controlled independantly or together
-            'safety_on':True,
+            'wheels_linked':True # are the wheels controlled independantly or together
         }]
     )
 
