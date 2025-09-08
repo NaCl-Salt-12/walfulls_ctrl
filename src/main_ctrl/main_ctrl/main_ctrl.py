@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSDurabilityPolicy
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64MultiArray, Int32, String
 import time
@@ -11,21 +11,20 @@ class MainControlLoop(Node):
     def __init__(self):
         super().__init__('main_ctrl_node')
         self.get_logger().info("Main Control Node has been started")
-        qos_profile=rclpy.qos.QoSProfile(depth=11)
+        qos_profile = QoSProfile(depth=10)
 
         #  --- Parameters ---
-        self.declare_parameter('temp_limit_c',71.0) # temperature safety limit
-        self.declare_parameter('wheels_linked',True) # are the wheels controlled independantly or together
-        self.declare_parameter('safety_on',True)
-        self.declare_parameter('prev_start_button', 2) 
-        self.declare_parameter('max_knee_vel', 11) 
+        self.declare_parameter('temp_limit_c', 71.0)  # temperature safety limit
+        self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
+        self.declare_parameter('safety_on', True)
+        self.declare_parameter('prev_start_button', 0)  # Changed from 2 to 0
+        self.declare_parameter('max_knee_vel', 11.0) 
         self.declare_parameter('max_hip_vel', 1.5)
-        self.declare_parameter('dt', 0.1) # Control loop period in seconds
-        self.declare_parameter('knee_kp',5.0)
-        self.declare_parameter('hip_kp',2.0)
-        self.declare_parameter('knee_kd',1.0)
-        self.declare_parameter('hip_kd',2.0)
-
+        self.declare_parameter('dt', 0.1)  # Control loop period in seconds
+        self.declare_parameter('knee_kp', 5.0)
+        self.declare_parameter('hip_kp', 2.0)
+        self.declare_parameter('knee_kd', 1.0)
+        self.declare_parameter('hip_kd', 2.0)
 
         # Retrieve parameters 
         self.temp_limit_c = self.get_parameter('temp_limit_c').value
@@ -39,7 +38,6 @@ class MainControlLoop(Node):
         self.hip_kp = self.get_parameter('hip_kp').value
         self.knee_kd = self.get_parameter('knee_kd').value
         self.hip_kd = self.get_parameter('hip_kd').value
-
 
         # --- State Variables ---
         self.shutdown_triggered = False
@@ -58,83 +56,89 @@ class MainControlLoop(Node):
         self.min_hip_angle = -0.5
         self.des_hip_splay = 0.0
 
-        # --- ROS Publishers and Subscribers
-        
-        self.joystick_subscriber = self.create_subscription(msg_type = Joy, topic = 'joy', callback = self.joy_callback, qos_profile=qos_profile)
+        # Initialize publishers to None
+        self.knee_cmd = None
+        self.hip_cmd = None
+        self.knee_special = None
+        self.hip_special = None
 
+        # --- ROS Publishers and Subscribers
+        self.joystick_subscriber = self.create_subscription(
+            Joy, 
+            'joy', 
+            self.joy_callback, 
+            qos_profile
+        )
 
     def initialize_motors(self):
-        qos_profile=rclpy.qos.QoSProfile(depth=10)
+        qos_profile = QoSProfile(depth=10)
 
         if self.motors_initialized:
-            return # Avoid re-initialization 
+            return  # Avoid re-initialization 
         
-        self.get_logger().info("Initiallizing Motors...")
+        self.get_logger().info("Initializing Motors...")
 
-        # One leg
-        # self.knee_cmd = self.create_publisher(Float64MultiArray, '/knee/mit_cmd',qos_profile)
-        self.hip_cmd = self.create_publisher(Float64MultiArray, '/hip/mit_cmd',qos_profile)
-        # self.knee_special = self.create_publisher(String, '/knee/special_cmd',qos_profile)
-        self.hip_special = self.create_publisher(String, '/hip/special_cmd',qos_profile)
+        # Create publishers
+        self.knee_cmd_pub = self.create_publisher(Float64MultiArray, '/knee/mit_cmd', qos_profile)
+        self.hip_cmd_pub = self.create_publisher(Float64MultiArray, '/hip/mit_cmd', qos_profile)
+        self.knee_special = self.create_publisher(String, '/knee/special_cmd', qos_profile)
+        self.hip_special = self.create_publisher(String, '/hip/special_cmd', qos_profile)
 
-        subsciber_qos = rclpy.qos.QoSProfile(
+        subscriber_qos = QoSProfile(
             depth=1,
-            reliability = rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
-            durability = rclpy.qos.DurabilityPolicy.VOLATILE,
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.VOLATILE,
         )
 
         time.sleep(0.1)
-        # self.knee_temp = self.create_subscription(Int32, "/knee/temp", self.temperature_callback, subsciber_qos)
+        # self.knee_temp = self.create_subscription(Int32, "/knee/temp", self.knee_temperature_callback, subscriber_qos)
 
         time.sleep(0.1)
-        self.hip_temp = self.create_subscription(Int32, "/hip/temp", self.temperature_callback, subsciber_qos)
+        self.hip_temp = self.create_subscription(Int32, "/hip/temp", self.hip_temperature_callback, subscriber_qos)
 
-
-
-
+        # Uncomment and implement these when you have the callback functions ready
         # time.sleep(0.1)
         # self.knee_sub = self.create_subscription(
-        #     msg_type=String,
-        #     topic='state_line',
-        #     callback = ,
-        #     qos_profile= subsciber_qos,
+        #     String,
+        #     '/knee/state_line',
+        #     self.knee_state_callback,
+        #     subscriber_qos,
         # )
 
-        # # time.sleep(0.1)
+        # time.sleep(0.1)
         # self.hip_sub = self.create_subscription(
-        #     msg_type=String,
-        #     topic='state_line',
-        #     callback = ,
-        #     qos_profile= subsciber_qos,
+        #     String,
+        #     '/hip/state_line',
+        #     self.hip_state_callback,
+        #     subscriber_qos,
         # )
 
         # time.sleep(0.1)
         # self.knee_joint_state = self.create_subscription(
-        #     msg_type=String,
-        #     topic='joint_state',
-        #     callback = knee_joint_callback,
-        #     qos_profile= subsciber_qos,
+        #     String,
+        #     '/knee/joint_state',
+        #     self.knee_joint_callback,
+        #     subscriber_qos,
         # )
 
         # time.sleep(0.1)
         # self.hip_joint_state = self.create_subscription(
-        #     msg_type=String,
-        #     topic='joint_state',
-        #     callback = hip_joint_callback,
-        #     qos_profile= subsciber_qos,
+        #     String,
+        #     '/hip/joint_state',
+        #     self.hip_joint_callback,
+        #     subscriber_qos,
         # )
 
-
-        start_msg = String(data="start")
+        start_msg = String()
+        start_msg.data = "start"
 
         # self.knee_special.publish(start_msg)
         self.hip_special.publish(start_msg)
 
-        self.get_logger().info("Leg started")
-        self.initialize_motors = True
+        self.get_logger().info("Motors started")
+        self.motors_initialized = True  # Fixed variable name
 
     def joy_callback(self, msg):
-
         # --- Mapping ---
         
         # button mapping
@@ -143,33 +147,32 @@ class MainControlLoop(Node):
         b_button = msg.buttons[2]
         y_button = msg.buttons[3]
         left_bumper = msg.buttons[4]
-        right_bumbper = msg.buttons[5]
+        right_bumper = msg.buttons[5]
 
-        # dpad mapping
-        dpad_ud = msg.axes[5]
-        dpad_lr = msg.axes[3]
-
-        # right stick mapping
-        right_stick_ud = msg.axes[3]
-        right_stick_lr = msg.axes[2]
-
-
+        # axes mapping (fixed indices)
+        if len(msg.axes) > 5:
+            dpad_ud = msg.axes[5]  # D-pad up/down
+        else:
+            dpad_ud = 0.0
+            
+        if len(msg.axes) > 4:
+            right_stick_ud = msg.axes[4]  # Right stick up/down
+        else:
+            right_stick_ud = 0.0
+            
+        if len(msg.axes) > 3:
+            right_stick_lr = msg.axes[3]  # Right stick left/right
+        else:
+            right_stick_lr = 0.0
 
         if self.shutdown_triggered:
             return
 
-        if msg.buttons[9] == 1 and self.prev_start_button == 0:
-            self.safety_on = not self.safety_on
-            self.get_logger().info(f"Safety mode {'enabled' if self.safety_on else 'disabled'}")
-            if(self.safety_on):
-                spc_msg = String(data="clear")
-                self.hip_special.publish(spc_msg)
-                # self.knee_special.publish(spc_msg)
+        # Initialize motors if not already done
+        if not self.motors_initialized:
+            self.initialize_motors()
 
-        self.prev_start_button = msg.buttons[9] 
-
-        if not self.safety_on:
-
+        if not self.safety_on and self.motors_initialized:
             # Map joystick to knee velocities
             knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
             # Ensure velocities are within limits 
@@ -178,64 +181,107 @@ class MainControlLoop(Node):
             # Calculate Desired position
             knee_des_pos = self.knee_pos + knee_vel * self.dt
 
-            # Hip velocitys
+            # Hip velocities
             self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
             self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle)
 
-            self.knee_cmd = Float64MultiArray()
-            self.knee_cmd.data = [
-                knee_des_pos,
-                self.knee_vel, 
-                self.knee_kp,
-                self.knee_kd,
-                self.knee_torque
-            ]
+            # Create and publish knee command
+            # knee_cmd_msg = Float64MultiArray()
+            # knee_cmd_msg.data = [
+            #     knee_des_pos,
+            #     self.knee_vel, 
+            #     self.knee_kp,
+            #     self.knee_kd,
+            #     self.knee_torque
+            # ]
+            # if self.knee_cmd_pub:
+            #     self.knee_cmd_pub.publish(knee_cmd_msg)
 
-            self.hip_cmd = Float64MultiArray()
-            self.hip_cmd.data = [
+            # Create and publish hip command
+            hip_cmd_msg = Float64MultiArray()
+            hip_cmd_msg.data = [
                 self.des_hip_splay,
                 self.hip_vel, 
                 self.hip_kp,
                 self.hip_kd,
                 self.hip_torque
             ]
-            
-
+            if self.hip_cmd_pub:
+                self.hip_cmd_pub.publish(hip_cmd_msg)
 
     def nearest_pi_knee(self, angle):
-        value = 0.5*6*30/15
-        near_pi = np.round(angle/value) * value
+        value = 0.5 * 6 * 30 / 15
+        near_pi = np.round(angle / value) * value
         return near_pi
 
-    def temperature_callback(self,msg):
+    def knee_temperature_callback(self, msg):
         """
-        Callback function for the motor temperature.
-        If the temperature exceeds the specified limit, it triggers a safety shutdown.
+        Callback function for the knee motor temperature.
+        """
+        self._handle_temperature(msg, "knee")
+
+    def hip_temperature_callback(self, msg):
+        """
+        Callback function for the hip motor temperature.
+        """
+        self._handle_temperature(msg, "hip")
+
+    def _handle_temperature(self, msg, motor_name):
+        """
+        Helper function to handle temperature monitoring for any motor.
         """
         temperature = msg.data 
         if temperature > self.temp_limit_c and not self.shutdown_triggered:
-            self.get_logger().error(f"EMERGENCY SHUTDOWN: Motor temperature ({temperature}°C) exceeded limit ({self.temp_limit_c}°C). Stopping motor.")
+            self.get_logger().error(
+                f"EMERGENCY SHUTDOWN: {motor_name} motor temperature ({temperature}°C) "
+                f"exceeded limit ({self.temp_limit_c}°C). Stopping motors."
+            )
 
-            # set the shutdown flag to ignore further joy commands
+            # Set the shutdown flag to ignore further joy commands
             self.shutdown_triggered = True
 
-            # Send a 'clear' command to stop the motor 
-            special_msg = String(data="exit")
- 
+            # Send an 'exit' command to stop the motors 
+            self.kill_motors()
+
+    def kill_motors(self):
+        """Kill all motors by sending exit command"""
+        special_msg = String()
+        special_msg.data = "exit"
+        
+        if self.knee_special:
             self.knee_special.publish(special_msg)
+        if self.hip_special:
             self.hip_special.publish(special_msg)
 
-    def kill_motor(self):
-            special_msg = String(data="exit")
-  
-            self.knee_special.publish(special_msg)
-            self.hip_special.publish(special_msg)
+    # Placeholder callback functions for future implementation
+    def knee_state_callback(self, msg):
+        """Callback for knee state information"""
+        pass
+
+    def hip_state_callback(self, msg):
+        """Callback for hip state information"""
+        pass
+
+    def knee_joint_callback(self, msg):
+        """Callback for knee joint state"""
+        pass
+
+    def hip_joint_callback(self, msg):
+        """Callback for hip joint state"""
+        pass
 
 def main():
     rclpy.init()
     main_ctrl = MainControlLoop()
-    rclpy.spin(main_ctrl)
-    main_ctrl.kill_motor()
-    main_ctrl.destroy_node()
-    rclpy.shutdown()
     
+    try:
+        rclpy.spin(main_ctrl)
+    except KeyboardInterrupt:
+        main_ctrl.get_logger().info("Shutting down...")
+    finally:
+        main_ctrl.kill_motors()
+        main_ctrl.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
