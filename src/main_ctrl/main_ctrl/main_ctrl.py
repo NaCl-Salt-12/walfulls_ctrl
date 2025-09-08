@@ -30,7 +30,7 @@ class MainControlLoop(Node):
         # Retrieve parameters 
         self.temp_limit_c = self.get_parameter('temp_limit_c').value
         self.wheels_linked = self.get_parameter('wheels_linked').value
-        self.safety_on = self.get_parameter('safety_on').value
+        # self.safety_on = self.get_parameter('safety_on').value
         self.prev_start_button = self.get_parameter('prev_start_button').value
         self.max_knee_vel = self.get_parameter('max_knee_vel').value
         self.max_hip_vel = self.get_parameter('max_hip_vel').value
