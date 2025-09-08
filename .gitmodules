@@ -1,0 +1,3 @@
+[submodule "src/Cubemars-V2-Motor-Control"]
+	path = src/Cubemars-V2-Motor-Control
+	url = https://github.com/NaCl-Salt-12/Cubemars-V2-Motor-Control.git
