@@ -17,7 +17,7 @@ class MainControlLoop(Node):
         #  --- Parameters ---
         self.declare_parameter('temp_limit_c', 71.0)  # temperature safety limit
         self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
-        self.declare_parameter('safety_on', True)
+        # self.declare_parameter('safety_on', True)
         self.declare_parameter('prev_start_button', 0)  # Changed from 2 to 0
         self.declare_parameter('max_knee_vel', 11.0) 
         self.declare_parameter('max_hip_vel', 1.5)
