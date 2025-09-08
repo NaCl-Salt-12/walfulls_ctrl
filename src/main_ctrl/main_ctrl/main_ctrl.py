@@ -135,6 +135,26 @@ class MainControlLoop(Node):
 
     def joy_callback(self, msg):
 
+        # --- Mapping ---
+        
+        # button mapping
+        x_button = msg.buttons[0]
+        a_button = msg.buttons[1]
+        b_button = msg.buttons[2]
+        y_button = msg.buttons[3]
+        left_bumper = msg.buttons[4]
+        right_bumbper = msg.buttons[5]
+
+        # dpad mapping
+        dpad_ud = msg.axes[5]
+        dpad_lr = msg.axes[3]
+
+        # right stick mapping
+        right_stick_ud = msg.axes[3]
+        right_stick_lr = msg.axes[2]
+
+
+
         if self.shutdown_triggered:
             return
 
@@ -150,55 +170,36 @@ class MainControlLoop(Node):
 
         if not self.safety_on:
 
-            # --- Mapping ---
+            # Map joystick to knee velocities
+            knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
+            # Ensure velocities are within limits 
+            knee_vel = max(min(knee_vel, self.max_knee_vel), -self.max_knee_vel)
+
+            # Calculate Desired position
+            knee_des_pos = self.knee_pos + knee_vel * self.dt
+
+            # Hip velocitys
+            self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
+            self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle)
+
+            self.knee_cmd = Float64MultiArray()
+            self.knee_cmd.data = [
+                knee_des_pos,
+                self.knee_vel, 
+                self.knee_kp,
+                self.knee_kd,
+                self.knee_torque
+            ]
+
+            self.hip_cmd = Float64MultiArray()
+            self.hip_cmd.data = [
+                self.des_hip_splay,
+                self.hip_vel, 
+                self.hip_kp,
+                self.hip_kd,
+                self.hip_torque
+            ]
             
-            # button mapping
-            x_button = msg.buttons[0]
-            a_button = msg.buttons[1]
-            b_button = msg.buttons[2]
-            y_button = msg.buttons[3]
-            left_bumper = msg.buttons[4]
-            right_bumbper = msg.buttons[5]
-
-            # dpad mapping
-            dpad_ud = msg.axes[5]
-            dpad_lr = msg.axes[3]
-
-            # right stick mapping
-            right_stick_ud = msg.axes[3]
-            right_stick_lr = msg.axes[2]
-
-
-        # Map joystick to knee velocities
-        knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
-        # Ensure velocities are within limits 
-        knee_vel = max(min(knee_vel, self.max_knee_vel), -self.max_knee_vel)
-
-        # Calculate Desired position
-        knee_des_pos = self.knee_pos + knee_vel * self.dt
-
-        # Hip velocitys
-        self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
-        self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle)
-
-        self.knee_cmd = Float64MultiArray()
-        self.knee_cmd.data = [
-            knee_des_pos,
-            self.knee_vel, 
-            self.knee_kp,
-            self.knee_kd,
-            self.knee_torque
-        ]
-
-        self.hip_cmd = Float64MultiArray()
-        self.hip_cmd.data = [
-            self.des_hip_splay,
-            self.hip_vel, 
-            self.hip_kp,
-            self.hip_kd,
-            self.hip_torque
-        ]
-        
 
 
     def nearest_pi_knee(self, angle):
