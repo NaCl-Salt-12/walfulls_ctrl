@@ -96,22 +96,8 @@ class MainControlLoop(Node):
 
         time.sleep(0.1)
         self.hip_temp = self.create_subscription(Int32, "/hip/temperature", self.hip_temperature_callback, subscriber_qos)
-
-        # Uncomment and implement these when you have the callback functions ready
-        # time.sleep(0.1)
-        # self.knee_sub = self.create_subscription(
-        #     String,
-        #     '/knee/motor_state',
-        #     self.knee_state_callback,
-        #     subscriber_qos,
-        # )
-
         time.sleep(0.1)
-        self.knee_sub = self.create_subscription(
-            MotorState,  # Changed from String to MotorState
-            '/knee/motor_state',
-            self.knee_state_callback,
-            subscriber_qos,
+        self.knee_sub = self.create_subscription( MotorState,  # Changed from String to MotorState '/knee/motor_state', self.knee_state_callback, subscriber_qos,
         )
 
         time.sleep(0.1)
@@ -157,14 +143,13 @@ class MainControlLoop(Node):
         else:
             right_stick_lr = 0.0
 
-        if self.shutdown_triggered:
-            return
 
+           
         # Initialize motors if not already done
         if not self.motors_initialized:
             self.initialize_motors()
 
-        if not self.safety_on and self.motors_initialized:
+        if self.motors_initialized:
             # Map joystick to knee velocities
             knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
             # Ensure velocities are within limits 
