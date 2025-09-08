@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy
 from sensor_msgs.msg import Joy
-from std_msgs.msg import Float65MultiArray, Int32, String
+from std_msgs.msg import Float64MultiArray, Int32, String
 import time
 import numpy as np
 
