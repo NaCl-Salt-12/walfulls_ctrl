@@ -20,7 +20,7 @@ class MainControlLoop(Node):
         self.declare_parameter('max_knee_vel', 5.0) 
         self.declare_parameter('max_hip_vel', 2.5)
         self.declare_parameter('hz', 20.0)  # Control loop frequency in Hz
-        self.declare_parameter('knee_kp', 5.0)
+        self.declare_parameter('knee_kp', 2.0)
         self.declare_parameter('hip_kp', 2.0)
         self.declare_parameter('knee_kd', 1.0)
         self.declare_parameter('hip_kd', 2.0)
