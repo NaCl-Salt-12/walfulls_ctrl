@@ -286,7 +286,6 @@ def main():
         rclpy.spin(main_ctrl)
     except KeyboardInterrupt:
         main_ctrl.get_logger().info("Shutting down...")
-        main_ctrl.kill_motors()
     finally:
         main_ctrl.destroy_node()
         rclpy.shutdown()
