@@ -18,7 +18,7 @@ class MainControlLoop(Node):
         self.declare_parameter('temp_limit_c', 71.0)  # temperature safety limit
         self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
         self.declare_parameter('max_knee_vel', 11.0) 
-        self.declare_parameter('max_hip_vel', 1.5)
+        self.declare_parameter('max_hip_vel', 2.5)
         self.declare_parameter('hz', 20.0)  # Control loop frequency in Hz
         self.declare_parameter('knee_kp', 5.0)
         self.declare_parameter('hip_kp', 2.0)
