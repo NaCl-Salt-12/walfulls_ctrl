@@ -257,7 +257,7 @@ class MainControlLoop(Node):
         try:
             # Update knee state variables with actual motor state data
             self.knee_pos = msg.abs_position  # Use absolute position for control
-            # self.knee_vel = msg.velocity
+            self.knee_vel = msg.velocity
             self.knee_torque = msg.torque  # Update torque value
             
             self.get_logger().debug(f"Knee state - Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Torque: {msg.torque:.3f}")
@@ -270,7 +270,7 @@ class MainControlLoop(Node):
         try:
             # Update hip state variables with actual motor state data
             self.hip_pos = msg.abs_position  # Use absolute position for control
-            # self.hip_vel = msg.velocity
+            self.hip_vel = msg.velocity
             self.hip_torque = msg.torque  # Update torque value
             
             self.get_logger().debug(f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg.torque:.3f}")

@@ -12,7 +12,7 @@ def generate_launch_description():
         name='knee_motor_node',
         namespace='knee',
         parameters= [{
-            'can_id': 1,
+            'can_id': 4,
             'motor_type': "AK80-64",
             'joint_name': "knee",
         }]
