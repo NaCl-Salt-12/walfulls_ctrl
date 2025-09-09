@@ -32,7 +32,7 @@ def generate_launch_description():
         parameters= [{
             'temp_limit_c':80.0, # temperature safety limit
             'wheels_linked':True, # are the wheels controlled independantly or together
-            'hip_kp': 0.01, # hip position control P gain
+            'hip_kp': 0.001, # hip position control P gain
             'hip_kd': 0.0 # hip position control D gain
         }]
     )
