@@ -109,12 +109,8 @@ class MainControlLoop(Node):
             subscriber_qos
         )
         
-        start_msg = String()
-        start_msg.data = "start"
-
-        self.knee_special.publish(start_msg)
-        self.hip_special.publish(start_msg)
-
+        time.sleep(0.1)
+        self.start_motors()
         self.get_logger().info("Motors started")
         self.motors_initialized = True
 
@@ -191,6 +187,11 @@ class MainControlLoop(Node):
                     self.get_logger().info("B button pressed - Stopping motors")
                     self.kill_motors()
                     self.shutdown_triggered = True
+                
+                if a_button:
+                    self.get_logger().info("A button pressed - Re-starting motors")
+                    self.shutdown_triggered = False
+                    self.start_motors()
 
                     
         except Exception as e:
@@ -224,6 +225,15 @@ class MainControlLoop(Node):
 
             # Send an 'exit' command to stop the motors 
             self.kill_motors()
+
+    def start_motors(self):
+        """Start all motors by sending a start command"""
+        special_msg = String()
+        special_msg.data = "start"
+        if self.knee_special:
+            self.knee_special.publish(special_msg)
+        if self.hip_special:
+            self.hip_special.publish(special_msg)
 
     def kill_motors(self):
         """Kill all motors by sending exit command"""
