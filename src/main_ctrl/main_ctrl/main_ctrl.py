@@ -146,6 +146,13 @@ class MainControlLoop(Node):
             if not self.motors_initialized:
                 self.initialize_motors()
 
+ 
+            if a_button:
+                self.get_logger().info("A button pressed - Re-starting motors")
+                self.shutdown_triggered = False
+                self.start_motors()
+
+
             if self.motors_initialized and not self.shutdown_triggered:
                 # Map joystick to knee velocities
                 knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
@@ -187,13 +194,7 @@ class MainControlLoop(Node):
                     self.get_logger().info("B button pressed - Stopping motors")
                     self.kill_motors()
                     self.shutdown_triggered = True
-                
-                if a_button:
-                    self.get_logger().info("A button pressed - Re-starting motors")
-                    self.shutdown_triggered = False
-                    self.start_motors()
-
-                    
+                                   
         except Exception as e:
             self.get_logger().error(f"Error in joy_callback: {e}")
 
