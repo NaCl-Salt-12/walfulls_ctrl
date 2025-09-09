@@ -116,6 +116,7 @@ class MainControlLoop(Node):
         
         time.sleep(0.1)
         self.start_motors()
+        self.reset_pos()
         self.get_logger().info("Motors started")
         self.motors_initialized = True
 
@@ -282,6 +283,16 @@ class MainControlLoop(Node):
         value = 0.5 * 6 * 30 / 15
         near_pi = np.round(angle / value) * value
         return near_pi
+    
+    def reset_pos(self):
+        """Reset the motor positions to zero by sending a reset command"""
+        special_msg = String()
+        special_msg.data = "reset_pos"
+        if self.knee_special:
+            self.knee_special.publish(special_msg)
+        if self.hip_special:
+            self.hip_special.publish(special_msg)
+        self.get_logger().info("Motor positions reset to zero")
 
 def main():
     rclpy.init()
