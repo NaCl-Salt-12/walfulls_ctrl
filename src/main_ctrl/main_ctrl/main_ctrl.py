@@ -287,7 +287,7 @@ class MainControlLoop(Node):
     def reset_pos(self):
         """Reset the motor positions to zero by sending a reset command"""
         special_msg = String()
-        special_msg.data = "reset_pos"
+        special_msg.data = "zero"
         if self.knee_special:
             self.knee_special.publish(special_msg)
         if self.hip_special:
