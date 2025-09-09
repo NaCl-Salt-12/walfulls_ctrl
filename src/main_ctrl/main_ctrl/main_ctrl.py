@@ -19,7 +19,7 @@ class MainControlLoop(Node):
         self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
         self.declare_parameter('max_knee_vel', 11.0) 
         self.declare_parameter('max_hip_vel', 1.5)
-        self.declare_parameter('dt', 0.1)  # Control loop period in seconds
+        self.declare_parameter('hz', 20.0)  # Control loop frequency in Hz
         self.declare_parameter('knee_kp', 5.0)
         self.declare_parameter('hip_kp', 2.0)
         self.declare_parameter('knee_kd', 1.0)
@@ -35,6 +35,7 @@ class MainControlLoop(Node):
         self.hip_kp = self.get_parameter('hip_kp').value
         self.knee_kd = self.get_parameter('knee_kd').value
         self.hip_kd = self.get_parameter('hip_kd').value
+        self.dt = 1.0 / self.get_parameter('hz').value
 
         # --- State Variables ---
         self.shutdown_triggered = False

@@ -1,6 +1,10 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
+
+control_hz = 20
+
+
 def generate_launch_description():
 #     knee = Node(
 #         package='cubemars_v2_ros',
