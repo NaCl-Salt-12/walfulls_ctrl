@@ -30,7 +30,7 @@ class MainControlLoop(Node):
         self.wheels_linked = self.get_parameter('wheels_linked').value
         self.max_knee_vel = self.get_parameter('max_knee_vel').value
         self.max_hip_vel = self.get_parameter('max_hip_vel').value
-        self.dt = self.get_parameter('dt').value
+        # self.dt = self.get_parameter('dt').value
         self.knee_kp = self.get_parameter('knee_kp').value
         self.hip_kp = self.get_parameter('hip_kp').value
         self.knee_kd = self.get_parameter('knee_kd').value
