@@ -42,9 +42,13 @@ class MainControlLoop(Node):
 
         self.knee_pos = 0.0
         self.knee_vel = 0.0
+        self.des_knee_vel = 0.0
+        self.des_knee_torque = 0.0
 
         self.hip_pos = 0.0
         self.hip_vel = 0.0
+        self.des_hip_vel = 0.0
+        self.des_hip_torque = 0.0
 
         self.knee_torque = 0.0
         self.hip_torque = 0.0
@@ -170,10 +174,10 @@ class MainControlLoop(Node):
                 knee_cmd_msg = Float64MultiArray()
                 knee_cmd_msg.data = [
                     knee_des_pos,
-                    self.knee_vel, 
+                    self.des_knee_vel, 
                     self.knee_kp,
                     self.knee_kd,
-                    self.knee_torque
+                    self.des_knee_torque
                 ]
                 if self.knee_cmd_pub:
                     self.knee_cmd_pub.publish(knee_cmd_msg)
@@ -182,10 +186,10 @@ class MainControlLoop(Node):
                 hip_cmd_msg = Float64MultiArray()
                 hip_cmd_msg.data = [
                     self.des_hip_splay,
-                    self.hip_vel, 
+                    self.des_hip_vel, 
                     self.hip_kp,
                     self.hip_kd,
-                    self.hip_torque
+                    self.des_hip_torque
                 ]
                 if self.hip_cmd_pub:
                     self.hip_cmd_pub.publish(hip_cmd_msg)
@@ -251,7 +255,7 @@ class MainControlLoop(Node):
         try:
             # Update knee state variables with actual motor state data
             self.knee_pos = msg.abs_position  # Use absolute position for control
-            self.knee_vel = msg.velocity
+            # self.knee_vel = msg.velocity
             self.knee_torque = msg.torque  # Update torque value
             
             self.get_logger().debug(f"Knee state - Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Torque: {msg.torque:.3f}")
@@ -264,7 +268,7 @@ class MainControlLoop(Node):
         try:
             # Update hip state variables with actual motor state data
             self.hip_pos = msg.abs_position  # Use absolute position for control
-            self.hip_vel = msg.velocity
+            # self.hip_vel = msg.velocity
             self.hip_torque = msg.torque  # Update torque value
             
             self.get_logger().debug(f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg.torque:.3f}")
