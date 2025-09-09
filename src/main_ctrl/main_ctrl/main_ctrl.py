@@ -186,6 +186,13 @@ class MainControlLoop(Node):
                 ]
                 if self.hip_cmd_pub:
                     self.hip_cmd_pub.publish(hip_cmd_msg)
+
+                if b_button:
+                    self.get_logger().info("B button pressed - Stopping motors")
+                    self.kill_motors()
+                    self.shutdown_triggered = True
+
+                    
         except Exception as e:
             self.get_logger().error(f"Error in joy_callback: {e}")
 
@@ -254,6 +261,12 @@ class MainControlLoop(Node):
         except Exception as e:
             self.get_logger().error(f"Error processing hip state: {e}")
 
+
+    def nearest_pi_knee(self, angle):
+        value = 0.5 * 6 * 30 / 15
+        near_pi = np.round(angle / value) * value
+        return near_pi
+
 def main():
     rclpy.init()
     main_ctrl = MainControlLoop()
@@ -262,8 +275,8 @@ def main():
         rclpy.spin(main_ctrl)
     except KeyboardInterrupt:
         main_ctrl.get_logger().info("Shutting down...")
-    finally:
         main_ctrl.kill_motors()
+    finally:
         main_ctrl.destroy_node()
         rclpy.shutdown()
 
