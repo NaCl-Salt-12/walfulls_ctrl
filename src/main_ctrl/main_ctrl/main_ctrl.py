@@ -44,6 +44,7 @@ class MainControlLoop(Node):
         self.knee_pos = 0.0
         self.knee_vel = 0.0
         self.des_knee_vel = 0.0
+        self.des_knee_pos = 0.0
         self.des_knee_torque = 0.0
 
         self.hip_pos = 0.0
@@ -163,10 +164,10 @@ class MainControlLoop(Node):
                 # Map joystick to knee velocities
                 calc_knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
                 # Ensure velocities are within limits
-                self.des_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
+                calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
 
                 # Calculate Desired position
-                # knee_des_pos = self.knee_pos + calc_knee_vel * self.dt
+                self.des_knee_pos= self.knee_pos + calc_knee_vel * self.dt
 
                 # Hip velocities
                 self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
@@ -175,8 +176,7 @@ class MainControlLoop(Node):
                 # Create and publish knee command
                 knee_cmd_msg = Float64MultiArray()
                 knee_cmd_msg.data = [
-                    # knee_des_pos,
-                    0.0,
+                    self.des_knee_pos,
                     self.des_knee_vel, 
                     self.knee_kp,
                     self.knee_kd,
