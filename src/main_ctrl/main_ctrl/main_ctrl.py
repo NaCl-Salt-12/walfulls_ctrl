@@ -120,7 +120,12 @@ class MainControlLoop(Node):
 
         time.sleep(0.1)
         self.hip_temp = self.create_subscription(Int32, "/hip/temperature", self.hip_temperature_callback, subscriber_qos)
-        
+
+        self.knee_error = self.create_subscription(String, "/knee/error", self.knee_error_callback, subscriber_qos) 
+        self.hip_error = self.create_subscription(String, "/hip/error", self.hip_error_callback, subscriber_qos)
+        self.wheel1_error = self.create_subscription(String, "/wheel1/error", self.wheel1_error_callback, subscriber_qos)
+        self.wheel2_error = self.create_subscription(String, "/wheel2/error", self.wheel2_error_callback, subscriber_qos)
+
         time.sleep(0.1)
         self.knee_sub = self.create_subscription(
             MotorState,
@@ -380,6 +385,19 @@ class MainControlLoop(Node):
 
         except Exception as e:
             self.get_logger().error(f"Error processing wheel2 state: {e}")
+
+    def error_callback(self, msg, motor_name):
+        try:
+            error_msg = msg.data
+            self.get_logger().debug(f"{motor_name} motor error message received: {error_msg}")
+        except Exception as e:
+            self.get_logger().error(f"Error processing {motor_name} error message: {e}")
+            return
+        
+        if 0 not in error_msg:
+            self.get_logger().error(f"{motor_name} motor error: {error_msg}")
+            self.kill_motors()
+            self.shutdown_triggered = True
 
     def nearest_pi_knee(self, angle):
         value = 0.5 * 6 * 30 / 15
