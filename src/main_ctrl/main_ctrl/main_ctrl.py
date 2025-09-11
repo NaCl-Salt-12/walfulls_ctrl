@@ -248,7 +248,7 @@ class MainControlLoop(Node):
                         self.wheel_kd,
                         0.0
                     ]
-                    if self.wheel_cmd_pub:
+                    if self.wheel1_cmd_pub and self.wheel2_cmd_pub:
                         self.wheel1_cmd_pub.publish(wheel_cmd_msg)
                         self.wheel2_cmd_pub.publish(wheel_cmd_msg)
 
