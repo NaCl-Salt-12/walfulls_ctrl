@@ -161,12 +161,12 @@ class MainControlLoop(Node):
 
             if self.motors_initialized and not self.shutdown_triggered:
                 # Map joystick to knee velocities
-                knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
+                calc_knee_vel = self.max_knee_vel * right_stick_ud + self.max_knee_vel * right_stick_lr
                 # Ensure velocities are within limits 
-                knee_vel = max(min(knee_vel, self.max_knee_vel), -self.max_knee_vel)
+                calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
 
                 # Calculate Desired position
-                knee_des_pos = self.knee_pos + knee_vel * self.dt
+                knee_des_pos = self.knee_pos + calc_knee_vel * self.dt
 
                 # Hip velocities
                 self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt
