@@ -116,11 +116,6 @@ class MainControlLoop(Node):
         )
 
         time.sleep(0.1)
-        self.knee_temp = self.create_subscription(Int32, "/knee/temperature", self.knee_temperature_callback, subscriber_qos)
-
-        time.sleep(0.1)
-        self.hip_temp = self.create_subscription(Int32, "/hip/temperature", self.hip_temperature_callback, subscriber_qos)
-
         self.knee_error = self.create_subscription(String, "/knee/error", self.knee_error_callback, subscriber_qos) 
         self.hip_error = self.create_subscription(String, "/hip/error", self.hip_error_callback, subscriber_qos)
         self.wheel1_error = self.create_subscription(String, "/wheel1/error", self.wheel1_error_callback, subscriber_qos)
@@ -214,7 +209,7 @@ class MainControlLoop(Node):
 
                 # Hip velocities
                 self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
-                self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) * 33.0 # convert to motor units due to gearing
+                self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
 
                 # Create and publish knee command
                 knee_cmd_msg = Float64MultiArray()
@@ -266,38 +261,13 @@ class MainControlLoop(Node):
             self.get_logger().error(f"Error in joy_callback: {e}")
 
 
-
-    def knee_temperature_callback(self, msg):
-        """
-        Callback function for the knee motor temperature.
-        """
-        self._handle_temperature(msg, "knee")
-
-    def hip_temperature_callback(self, msg):
-        """
-        Callback function for the hip motor temperature.
-        """
-        self._handle_temperature(msg, "hip")
-    def wheel1_temperature_callback(self, msg):
-        """
-        Callback function for the wheel1 motor temperature.
-        """
-        self._handle_temperature(msg, "wheel1")
-
-    def wheel2_temperature_callback(self, msg):
-        """
-        Callback function for the wheel2 motor temperature.
-        """
-        self._handle_temperature(msg, "wheel2")
-
-    def _handle_temperature(self, msg, motor_name):
+    def _handle_temperature(self, temp, motor_name):
         """
         Helper function to handle temperature monitoring for any motor.
         """
-        temperature = msg.data 
-        if temperature > self.temp_limit_c and not self.shutdown_triggered:
+        if temp > self.temp_limit_c and not self.shutdown_triggered:
             self.get_logger().error(
-                f"EMERGENCY SHUTDOWN: {motor_name} motor temperature ({temperature}°C) "
+                f"EMERGENCY SHUTDOWN: {motor_name} motor temperature ({temp}°C) "
                 f"exceeded limit ({self.temp_limit_c}°C). Stopping motors."
             )
 
@@ -341,6 +311,8 @@ class MainControlLoop(Node):
             self.knee_pos = msg.abs_position  # Use absolute position for control
             self.knee_vel = msg.velocity
             self.knee_torque = msg.torque  # Update torque value
+            temperature = msg.temperature  # Current temperature
+            self._handle_temperature(temperature, "knee")
             
             self.get_logger().debug(f"Knee state - Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Torque: {msg.torque:.3f}")
             
@@ -354,6 +326,8 @@ class MainControlLoop(Node):
             self.hip_pos = msg.abs_position  # Use absolute position for control
             self.hip_vel = msg.velocity
             self.hip_torque = msg.torque  # Update torque value
+            temperature = msg.temperature  # Current temperature
+            self._handle_temperature(temperature, "hip")
             
             self.get_logger().debug(f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg.torque:.3f}")
             
@@ -367,6 +341,8 @@ class MainControlLoop(Node):
             self.wheel1_pos = msg.position# Use absolute position for control
             self.wheel1_vel = msg.velocity
             self.wheel1_torque = msg.torque  # Update torque value
+            temperature = msg.temperature  # Current temperature
+            self._handle_temperature(temperature, "wheel1")
             
             self.get_logger().debug(f"Wheel1 state - Pos: {self.wheel1_pos:.3f}, Vel: {self.wheel1_vel:.3f}, Torque: {msg.torque:.3f}")
             
@@ -380,6 +356,8 @@ class MainControlLoop(Node):
             self.wheel2_pos = msg.position# Use absolute position for control
             self.wheel2_vel = msg.velocity
             self.wheel2_torque = msg.torque  # Update torque value
+            temperature = msg.temperature  # Current temperature
+            self._handle_temperature(temperature, "wheel2")
 
             self.get_logger().debug(f"Wheel2 state - Pos: {self.wheel2_pos:.3f}, Vel: {self.wheel2_vel:.3f}, Torque: {msg.torque:.3f}")
 
