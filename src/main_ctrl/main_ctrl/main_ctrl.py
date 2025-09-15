@@ -177,14 +177,14 @@ class MainControlLoop(Node):
                 dpad_ud = 0.0
                 
             if len(msg.axes) > 4:
-                right_stick_ud = msg.axes[4]  # Right stick up/down
+                dpad_lr = msg.axes[4]  # Right stick up/down
             else:
-                right_stick_ud = 0.0
+                dpad_lr = 0.0
                 
             if len(msg.axes) > 3:
-                right_stick_lr = msg.axes[3]  # Right stick left/right
+                right_stick_ud = msg.axes[3]  # Right stick left/right
             else:
-                right_stick_lr = 0.0
+                right_stick_ud = 0.0
 
             # Initialize motors if not already done
             if not self.motors_initialized:
@@ -199,7 +199,7 @@ class MainControlLoop(Node):
 
             if self.motors_initialized and not self.shutdown_triggered:
                 # Map joystick to knee velocities
-                calc_knee_vel = self.max_knee_vel * right_stick_ud #+ self.max_knee_vel * right_stick_lr
+                calc_knee_vel =  self.max_knee_vel * right_stick_ud
                 # Ensure velocities are within limits
                 calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
 
