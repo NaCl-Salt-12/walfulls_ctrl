@@ -186,6 +186,9 @@ class MainControlLoop(Node):
             else:
                 right_stick_ud = 0.0
 
+            left_stick_ud = msg.axes[2]  # Left stick up/down
+            left_stick_rl = msg.axes[1]  # Left stick right/left
+
             # Initialize motors if not already done
             if not self.motors_initialized:
                 self.initialize_motors()
@@ -236,7 +239,7 @@ class MainControlLoop(Node):
 
                 if self.wheels_linked:
 
-                    self.des_wheel_vel = self.max_wheel_vel * right_stick_ud 
+                    self.des_wheel_vel = self.max_wheel_vel * left_stick_ud 
                     self.des_wheel_vel = max(min(self.des_wheel_vel, self.max_wheel_vel), -self.max_wheel_vel)
 
                     wheel_cmd_msg = Float64MultiArray()
