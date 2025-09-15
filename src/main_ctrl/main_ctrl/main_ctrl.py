@@ -194,7 +194,7 @@ class MainControlLoop(Node):
                 self.initialize_motors()
 
  
-            if a_button:
+            if self.shutdown_triggered and a_button:
                 self.get_logger().info("A button pressed - Re-starting motors")
                 self.shutdown_triggered = False
                 self.start_motors()
