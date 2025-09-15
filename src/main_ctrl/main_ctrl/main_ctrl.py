@@ -162,7 +162,6 @@ class MainControlLoop(Node):
     def joy_callback(self, msg):
         try:
             # --- Mapping ---
-            
             # button mapping
             x_button = msg.buttons[0]
             a_button = msg.buttons[1]
@@ -172,7 +171,7 @@ class MainControlLoop(Node):
             right_bumper = msg.buttons[5]
 
             # axes mapping (fixed indices)
-            if len(msg.axes) > 5:
+            if len(msg.axes) >= 6:
                 dpad_ud = msg.axes[5]  # D-pad up/down
             else:
                 dpad_ud = 0.0
