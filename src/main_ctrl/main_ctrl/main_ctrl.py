@@ -386,7 +386,19 @@ class MainControlLoop(Node):
         except Exception as e:
             self.get_logger().error(f"Error processing wheel2 state: {e}")
 
-    def error_callback(self, msg, motor_name):
+    def knee_error_callback(self, msg):
+        self._error_callback(msg, "knee")
+
+    def hip_error_callback(self, msg):
+        self._error_callback(msg, "hip")
+
+    def wheel1_error_callback(self, msg):
+        self._error_callback(msg, "wheel1")
+
+    def wheel2_error_callback(self, msg):
+        self._error_callback(msg, "wheel2")
+
+    def _error_callback(self, msg, motor_name):
         try:
             error_msg = msg.data
             self.get_logger().debug(f"{motor_name} motor error message received: {error_msg}")
