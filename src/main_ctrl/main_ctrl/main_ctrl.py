@@ -177,12 +177,12 @@ class MainControlLoop(Node):
                 dpad_ud = 0.0
                 
             if len(msg.axes) > 4:
-                dpad_lr = msg.axes[4]  # Right stick up/down
+                dpad_lr = msg.axes[4]  # D-pad left/right
             else:
                 dpad_lr = 0.0
                 
             if len(msg.axes) > 3:
-                right_stick_ud = msg.axes[3]  # Right stick left/right
+                right_stick_ud = msg.axes[3]  # Right stick up/down
             else:
                 right_stick_ud = 0.0
 
