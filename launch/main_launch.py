@@ -17,17 +17,17 @@ def generate_launch_description():
             'joint_name': "knee",
         }]
     )
-    # hip = Node(
-    #     package='cubemars_v2_ros',
-    #     executable='motor_node',
-    #     name='hip_motor_node',
-    #     namespace='hip',
-    #     parameters= [{
-    #         'can_id': 3,
-    #         'motor_type': "AK70-10",
-    #         'joint_name': "hip",
-    #     }]
-    # )
+    hip = Node(
+        package='cubemars_v2_ros',
+        executable='motor_node',
+        name='hip_motor_node',
+        namespace='hip',
+        parameters= [{
+            'can_id': 3,
+            'motor_type': "AK70-10",
+            'joint_name': "hip",
+        }]
+    )
     # wheel1 = Node(
     #     package='cubemars_v2_ros',
     #     executable='motor_node',
@@ -77,7 +77,7 @@ def generate_launch_description():
     )
     return LaunchDescription([
         knee,
-        # hip,
+        hip,
         # wheel1,
         # wheel2,
         main_ctrl,
