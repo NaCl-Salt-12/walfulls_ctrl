@@ -191,6 +191,7 @@ class MainControlLoop(Node):
             left_stick_ud = msg.axes[2]  # Left stick up/down
             left_stick_rl = msg.axes[1]  # Left stick right/left
 
+            self.get_logger().info(f"Left Joystick input up/down: {left_stick_ud}")
             # Initialize motors if not already done
             if not self.motors_initialized:
                 self.initialize_motors()
