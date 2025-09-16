@@ -186,6 +186,7 @@ class MainControlLoop(Node):
             if len(msg.axes) > 3:
                 right_stick_ud = msg.axes[3]  # Right stick up/down
             else:
+                right_stick_ud = 0.0
 
             axis_0 = msg.axes[0]
             axis_1 = msg.axes[1]
