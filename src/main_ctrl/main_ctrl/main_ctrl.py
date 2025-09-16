@@ -386,7 +386,7 @@ class MainControlLoop(Node):
             self.get_logger().error(f"Error processing {motor_name} error message: {e}")
             return
         
-        if 0 not in error_msg:
+        if "0" not in error_msg:
             self.get_logger().error(f"{motor_name} motor error: {error_msg}")
             self.kill_motors()
             self.shutdown_triggered = True
