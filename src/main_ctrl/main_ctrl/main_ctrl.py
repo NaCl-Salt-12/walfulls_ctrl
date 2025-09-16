@@ -16,7 +16,7 @@ class MainControlLoop(Node):
 
         #  --- Parameters ---
         self.declare_parameter('temp_limit_c', 71.0)  # temperature safety limit
-        self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
+        # self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
         self.declare_parameter('max_knee_vel', 11.0) 
         self.declare_parameter('max_hip_vel', 2.5)
         self.declare_parameter('hz', 20.0)  # Control loop frequency in Hz
@@ -30,7 +30,7 @@ class MainControlLoop(Node):
 
         # Retrieve parameters 
         self.temp_limit_c = self.get_parameter('temp_limit_c').value
-        self.wheels_linked = self.get_parameter('wheels_linked').value
+        # self.wheels_linked = self.get_parameter('wheels_linked').value
         self.max_knee_vel = self.get_parameter('max_knee_vel').value
         self.max_hip_vel = self.get_parameter('max_hip_vel').value
         # self.dt = self.get_parameter('dt').value
@@ -237,22 +237,20 @@ class MainControlLoop(Node):
                 if self.hip_cmd_pub:
                     self.hip_cmd_pub.publish(hip_cmd_msg)
 
-                if self.wheels_linked:
+                self.des_wheel_vel = self.max_wheel_vel * left_stick_ud 
+                self.des_wheel_vel = max(min(self.des_wheel_vel, self.max_wheel_vel), -self.max_wheel_vel)
 
-                    self.des_wheel_vel = self.max_wheel_vel * left_stick_ud 
-                    self.des_wheel_vel = max(min(self.des_wheel_vel, self.max_wheel_vel), -self.max_wheel_vel)
-
-                    wheel_cmd_msg = Float64MultiArray()
-                    wheel_cmd_msg.data = [
-                        0.0,
-                        self.des_wheel_vel,
-                        self.wheel_kp,
-                        self.wheel_kd,
-                        0.0
-                    ]
-                    if self.wheel1_cmd_pub and self.wheel2_cmd_pub:
-                        self.wheel1_cmd_pub.publish(wheel_cmd_msg)
-                        self.wheel2_cmd_pub.publish(wheel_cmd_msg)
+                wheel_cmd_msg = Float64MultiArray()
+                wheel_cmd_msg.data = [
+                    0.0,
+                    self.des_wheel_vel,
+                    self.wheel_kp,
+                    self.wheel_kd,
+                    0.0
+                ]
+                if self.wheel1_cmd_pub and self.wheel2_cmd_pub:
+                    self.wheel1_cmd_pub.publish(wheel_cmd_msg)
+                    self.wheel2_cmd_pub.publish(wheel_cmd_msg)
 
                 if b_button:
                     self.get_logger().info("B button pressed - Stopping motors")
