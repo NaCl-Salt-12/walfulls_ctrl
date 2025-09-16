@@ -186,12 +186,13 @@ class MainControlLoop(Node):
             if len(msg.axes) > 3:
                 right_stick_ud = msg.axes[3]  # Right stick up/down
             else:
-                right_stick_ud = 0.0
 
-            left_stick_ud = msg.axes[2]  # Left stick up/down
-            left_stick_rl = msg.axes[1]  # Left stick right/left
-
-            self.get_logger().info(f"Left Joystick input up/down: {left_stick_ud}")
+            axis_1 = msg.axes[1]
+            axis_2 = msg.axes[2]
+            axis_3 = msg.axes[3]
+            axis_4 = msg.axes[4]
+            axis_5 = msg.axes[5]
+            self.get_logger().info(f"Joystick axes: 1 :{axis_1}, 2 :{axis_2}, 3 :{axis_3}, 4 :{axis_4}, 5 :{axis_5}")
             # Initialize motors if not already done
             if not self.motors_initialized:
                 self.initialize_motors()
