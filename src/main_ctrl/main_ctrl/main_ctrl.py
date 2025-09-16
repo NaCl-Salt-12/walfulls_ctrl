@@ -25,8 +25,8 @@ class MainControlLoop(Node):
         self.declare_parameter('knee_kd', 1.0)
         self.declare_parameter('hip_kd', 2.0)
         self.declare_parameter('max_wheel_vel', 10.0)
-        self.declare_parameter('wheel_kp', 0.0)
-        self.declare_parameter('wheel_kd', 0.0)
+        self.declare_parameter('wheel_kp', 5.0)
+        self.declare_parameter('wheel_kd', 0.5)
 
         # Retrieve parameters 
         self.temp_limit_c = self.get_parameter('temp_limit_c').value
