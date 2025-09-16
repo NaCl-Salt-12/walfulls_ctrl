@@ -72,6 +72,8 @@ class MainControlLoop(Node):
         self.wheel2_pos = 0.0
         self.wheel1_torque = 0.0
         self.wheel2_torque = 0.0
+        self.des_wheel_pos = 0.0
+        self.des_wheel_torque = 0.0
 
         # Initialize publishers to None
         self.knee_cmd_pub = None
@@ -242,11 +244,11 @@ class MainControlLoop(Node):
 
                 wheel_cmd_msg = Float64MultiArray()
                 wheel_cmd_msg.data = [
-                    0.0,
+                    self.des_wheel_pos,
                     self.des_wheel_vel,
                     self.wheel_kp,
                     self.wheel_kd,
-                    0.0
+                    self.des_wheel_torque
                 ]
                 if self.wheel1_cmd_pub and self.wheel2_cmd_pub:
                     self.wheel1_cmd_pub.publish(wheel_cmd_msg)
