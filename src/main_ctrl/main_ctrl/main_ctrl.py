@@ -116,10 +116,10 @@ class MainControlLoop(Node):
         )
 
         time.sleep(0.1)
-        self.knee_error = self.create_subscription(String, "/knee/error", self.knee_error_callback, subscriber_qos) 
-        self.hip_error = self.create_subscription(String, "/hip/error", self.hip_error_callback, subscriber_qos)
-        self.wheel1_error = self.create_subscription(String, "/wheel1/error", self.wheel1_error_callback, subscriber_qos)
-        self.wheel2_error = self.create_subscription(String, "/wheel2/error", self.wheel2_error_callback, subscriber_qos)
+        self.knee_error = self.create_subscription(String, "/knee/error_code", self.knee_error_callback, subscriber_qos) 
+        self.hip_error = self.create_subscription(String, "/hip/error_code", self.hip_error_callback, subscriber_qos)
+        self.wheel1_error = self.create_subscription(String, "/wheel1/error_code", self.wheel1_error_callback, subscriber_qos)
+        self.wheel2_error = self.create_subscription(String, "/wheel2/error_code", self.wheel2_error_callback, subscriber_qos)
 
         time.sleep(0.1)
         self.knee_sub = self.create_subscription(
