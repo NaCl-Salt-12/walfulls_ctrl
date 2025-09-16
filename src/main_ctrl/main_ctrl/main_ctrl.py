@@ -187,12 +187,13 @@ class MainControlLoop(Node):
                 right_stick_ud = msg.axes[3]  # Right stick up/down
             else:
 
+            axis_0 = msg.axes[0]
             axis_1 = msg.axes[1]
             axis_2 = msg.axes[2]
             axis_3 = msg.axes[3]
             axis_4 = msg.axes[4]
             axis_5 = msg.axes[5]
-            self.get_logger().info(f"Joystick axes: 1 :{axis_1}, 2 :{axis_2}, 3 :{axis_3}, 4 :{axis_4}, 5 :{axis_5}")
+            self.get_logger().info(f"Joystick axes: 0 :{axis_0}, 1 :{axis_1}, 2 :{axis_2}, 3 :{axis_3}, 4 :{axis_4}, 5 :{axis_5}")
             # Initialize motors if not already done
             if not self.motors_initialized:
                 self.initialize_motors()
