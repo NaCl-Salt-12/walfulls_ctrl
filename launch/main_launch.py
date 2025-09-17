@@ -77,9 +77,9 @@ def generate_launch_description():
     )
     return LaunchDescription([
         # knee,
-        hip,
-        # wheel1,
-        # wheel2,
+        # hip,
+        wheel1,
+        wheel2,
         main_ctrl,
         joystick,
     ])
