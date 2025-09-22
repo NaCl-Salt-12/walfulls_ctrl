@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 
-control_hz = 20
+control_hz = 60
 
 
 def generate_launch_description():
@@ -15,6 +15,7 @@ def generate_launch_description():
             'can_id': 4,
             'motor_type': "AK80-64",
             'joint_name': "knee",
+            'control_hz': control_hz,
         }]
     )
     # hip = Node(
@@ -26,6 +27,7 @@ def generate_launch_description():
     #         'can_id': 3,
     #         'motor_type': "AK70-10",
     #         'joint_name': "hip",
+    #         'control_hz': control_hz,
     #     }]
     # )
     # wheel1 = Node(
@@ -37,6 +39,7 @@ def generate_launch_description():
     #         'can_id': 1,
     #         'motor_type': "AK10-9",
     #         'joint_name': "wheel1",
+    #         'control_hz': control_hz,
     #     }]
     # )
     # wheel2 = Node(
@@ -48,6 +51,7 @@ def generate_launch_description():
     #         'can_id': 2,
     #         'motor_type': "AK10-9",
     #         'joint_name': "wheel2",
+    #         'control_hz': control_hz,
     #     }]  
     # )
 
@@ -62,7 +66,8 @@ def generate_launch_description():
             'hip_kd': 0.5, # hip position control D gain
             'knee_kd': 1.0, # knee position control D gain
             'knee_kp': 5.0, # knee position control P gain
-            'max_knee_vel': 15.0
+            'max_knee_vel': 15.0,
+            'hz': control_hz,
         }]
     )
 
