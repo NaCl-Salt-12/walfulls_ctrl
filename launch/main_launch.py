@@ -6,30 +6,30 @@ control_hz = 40.0
 
 
 def generate_launch_description():
-    knee = Node(
-        package='cubemars_v2_ros',
-        executable='motor_node',
-        name='knee_motor_node',
-        namespace='knee',
-        parameters= [{
-            'can_id': 4,
-            'motor_type': "AK80-64",
-            'joint_name': "knee",
-            'control_hz': control_hz,
-        }]
-    )
-    # hip = Node(
+    # knee = Node(
     #     package='cubemars_v2_ros',
     #     executable='motor_node',
-    #     name='hip_motor_node',
-    #     namespace='hip',
+    #     name='knee_motor_node',
+    #     namespace='knee',
     #     parameters= [{
-    #         'can_id': 3,
-    #         'motor_type': "AK70-10",
-    #         'joint_name': "hip",
+    #         'can_id': 4,
+    #         'motor_type': "AK80-64",
+    #         'joint_name': "knee",
     #         'control_hz': control_hz,
     #     }]
     # )
+    hip = Node(
+        package='cubemars_v2_ros',
+        executable='motor_node',
+        name='hip_motor_node',
+        namespace='hip',
+        parameters= [{
+            'can_id': 3,
+            'motor_type': "AK70-10",
+            'joint_name': "hip",
+            'control_hz': control_hz,
+        }]
+    )
     # wheel1 = Node(
     #     package='cubemars_v2_ros',
     #     executable='motor_node',
@@ -81,8 +81,8 @@ def generate_launch_description():
         }]
     )
     return LaunchDescription([
-        knee,
-        # hip,
+        # knee,
+        hip,
         # wheel1,
         # wheel2,
         main_ctrl,
