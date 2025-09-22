@@ -66,7 +66,7 @@ def generate_launch_description():
             'hip_kd': 0.1, # hip position control D gain
             'knee_kd': 1.0, # knee position control D gain
             'knee_kp': 5.0, # knee position control P gain
-            'max_knee_vel': 8.0,
+            'max_knee_vel': 6.0,
             'hz': control_hz,
         }]
     )
