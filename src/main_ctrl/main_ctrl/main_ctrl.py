@@ -48,14 +48,12 @@ class MainControlLoop(Node):
         self.motors_initialized = False
 
         self.knee_pos = 0.0
-        self.knee_pos_abs = 0.0
         self.knee_vel = 0.0
         self.des_knee_vel = 0.0
         self.des_knee_pos = 0.0
         self.des_knee_torque = 0.0
 
         self.hip_pos = 0.0
-        self.hip_pos_abs = 0.0
         self.hip_vel = 0.0
         self.des_hip_vel = 0.0
         self.des_hip_torque = 0.0
@@ -311,8 +309,7 @@ class MainControlLoop(Node):
         """Callback for knee state information"""
         try:
             # Update knee state variables with actual motor state data
-            self.knee_pos = msg.position  # Use absolute position for control
-            self.knee_pos_abs = msg.abs_position  # Use absolute position for control
+            self.knee_pos = msg.abs_position  # Use absolute position for control
             self.knee_vel = msg.velocity
             self.knee_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
@@ -327,8 +324,7 @@ class MainControlLoop(Node):
         """Callback for hip state information"""
         try:
             # Update hip state variables with actual motor state data
-            self.hip_pos = msg.position  # Use absolute position for control
-            self.hip_pos_abs = msg.abs_position  # Use absolute position for control
+            self.hip_pos = msg.abs_position  # Use absolute position for control
             self.hip_vel = msg.velocity
             self.hip_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
