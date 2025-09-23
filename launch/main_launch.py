@@ -27,7 +27,7 @@ def generate_launch_description():
             'can_id': 3,
             'motor_type': "AK70-10",
             'joint_name': "hip",
-            'rx_timeout_ms': 10.0,
+            # 'rx_timeout_ms': 10.0,
             'control_hz': control_hz,
         }]
     )
@@ -62,7 +62,7 @@ def generate_launch_description():
         name='main_ctrl_node',
         parameters= [{
             'temp_limit_c':80.0, # temperature safety limit
-            'wheels_linked':True, # are the wheels controlled independantly or together
+            # 'wheels_linked':True, # are the wheels controlled independantly or together
             # 'hip_kp': 0.1, # hip position control P gain
             'hip_kd': 0.1, # hip position control D gain
             'knee_kd': 1.0, # knee position control D gain
