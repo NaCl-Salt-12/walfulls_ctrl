@@ -27,6 +27,7 @@ def generate_launch_description():
             'can_id': 3,
             'motor_type': "AK70-10",
             'joint_name': "hip",
+            'wrapping_margin': 1.0,
             # 'rx_timeout_ms': 10.0,
             'control_hz': control_hz,
         }]
