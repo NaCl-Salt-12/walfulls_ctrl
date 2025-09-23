@@ -123,7 +123,6 @@ class MainControlLoop(Node):
         self.wheel1_error = self.create_subscription(String, "/wheel1/error_code", self.wheel1_error_callback, subscriber_qos)
         self.wheel2_error = self.create_subscription(String, "/wheel2/error_code", self.wheel2_error_callback, subscriber_qos)
 
-        time.sleep(0.1)
         self.knee_sub = self.create_subscription(
             MotorState,
             '/knee/motor_state',
@@ -131,7 +130,6 @@ class MainControlLoop(Node):
             subscriber_qos
         )
 
-        time.sleep(0.1)
         self.hip_sub = self.create_subscription(
             MotorState,
             '/hip/motor_state',
@@ -139,8 +137,6 @@ class MainControlLoop(Node):
             subscriber_qos
         )
         
-        time.sleep(0.1)
-
         self.wheel1_sub = self.create_subscription(
             MotorState,
             '/wheel1/motor_state',
@@ -148,13 +144,14 @@ class MainControlLoop(Node):
             subscriber_qos
         )
 
-        time.sleep(0.1)
         self.wheel2_sub = self.create_subscription(
             MotorState,
             '/wheel2/motor_state',
             self.wheel2_state_callback,
             subscriber_qos
         )
+
+        time.sleep(0.1)
 
         self.start_motors()
         self.reset_pos()
