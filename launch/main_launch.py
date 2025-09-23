@@ -23,6 +23,7 @@ def generate_launch_description():
         executable='motor_node',
         name='hip_motor_node',
         namespace='hip',
+        arguments=['--ros-args', '--log-level', 'DEBUG'],
         parameters= [{
             'can_id': 3,
             'motor_type': "AK70-10",
