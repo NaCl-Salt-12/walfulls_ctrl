@@ -314,7 +314,7 @@ class MainControlLoop(Node):
             self.knee_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
             self._handle_temperature(temperature, "knee")
-            
+            self.get_logger().info(f"Knee Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Temp: {temperature:.1f}C")
             self.get_logger().debug(f"Knee state - Pos: {self.knee_pos:.3f}, Vel: {self.knee_vel:.3f}, Torque: {msg.torque:.3f}")
             
         except Exception as e:
