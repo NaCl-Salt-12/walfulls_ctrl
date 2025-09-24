@@ -213,8 +213,10 @@ class MainControlLoop(Node):
                 if x_button:
                     if self.control_pos:
                         self.control_pos = False
+                        self.get_logger().info("X button pressed - Switching to velocity control")
                     else:
                         self.control_pos = True
+                        self.get_logger().info("X button pressed - Switching to position control")
 
 
                 # Hip velocities
