@@ -209,10 +209,22 @@ class MainControlLoop(Node):
                 # self.des_knee_pos= self.knee_pos + calc_knee_vel * self.dt
                 self.des_knee_pos = 0.0
 
+                if x_button:
+                    if self.control_pos:
+                        self.control_pos = False
+                    else:
+                        self.control_pos = True
+
+
                 # Hip velocities
-                # self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
-                self.des_hip_splay = 0.0
-                self.des_hip_vel = dpad_ud * self.max_hip_vel 
+
+
+                if self.control_pos:
+                    self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
+                    self.des_hip_vel = 0.0
+                else: 
+                    self.des_hip_splay = 0.0
+                    self.des_hip_vel = dpad_ud * self.max_hip_vel 
                 # self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
 
                 # Create and publish knee command
