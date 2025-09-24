@@ -63,11 +63,12 @@ def generate_launch_description():
             'temp_limit_c':80.0, # temperature safety limit
             # 'wheels_linked':True, # are the wheels controlled independantly or together
             # 'hip_kp': 0.1, # hip position control P gain
-            'hip_kd': 0.1, # hip position control D gain
+            'hip_kd': 0.5, # hip position control D gain
             'hip_kp': 0.0, # hip position control D gain
             'knee_kd': 0.0, # knee position control D gain
             'knee_kp': 5.0, # knee position control P gain
             'max_knee_vel': 8.0,
+            'max_hip_vel': 5.0,
             'hz': control_hz,
         }]
     )
