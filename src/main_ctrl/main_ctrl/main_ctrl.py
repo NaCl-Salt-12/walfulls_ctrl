@@ -214,10 +214,11 @@ class MainControlLoop(Node):
                     if self.control_pos:
                         self.control_pos = False
                         self.get_logger().info("X button pressed - Switching to velocity control")
-                    else:
+
+                if y_button:
+                    if not self.control_pos:
                         self.control_pos = True
-                        self.get_logger().info("X button pressed - Switching to position control")
-                    time.sleep(0.3)  # Debounce delay
+                        self.get_logger().info("Y button pressed - Switching to position control")
 
 
                 # Hip velocities
