@@ -217,6 +217,7 @@ class MainControlLoop(Node):
                     else:
                         self.control_pos = True
                         self.get_logger().info("X button pressed - Switching to position control")
+                    time.sleep(0.1)  # Debounce delay
 
 
                 # Hip velocities
