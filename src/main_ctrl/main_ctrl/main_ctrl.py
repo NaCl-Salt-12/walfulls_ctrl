@@ -343,7 +343,8 @@ class MainControlLoop(Node):
         """Callback for hip state information"""
         try:
             # Update hip state variables with actual motor state data
-            self.hip_pos = msg.abs_position  # Use absolute position for control
+            self.abs_hip_pos = msg.abs_position  # Use absolute position for control
+            self.hip_pos = msg.position 
             self.hip_vel = msg.velocity
             self.hip_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
