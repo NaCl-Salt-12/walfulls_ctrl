@@ -227,6 +227,7 @@ class MainControlLoop(Node):
                 if self.control_pos:
                     self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
                     self.des_hip_vel = 0.0
+                    self.hip_kp = 1.0
                 else: 
                     self.des_hip_splay = 0.0
                     self.des_hip_vel = dpad_ud * self.max_hip_vel 
