@@ -46,6 +46,7 @@ class MainControlLoop(Node):
         # --- State Variables ---
         self.shutdown_triggered = False
         self.motors_initialized = False
+        self.control_pos = True
 
         self.knee_pos = 0.0
         self.knee_vel = 0.0
