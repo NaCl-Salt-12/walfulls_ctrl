@@ -27,8 +27,6 @@ def generate_launch_description():
             'can_id': 3,
             'motor_type': "AK70-10",
             'joint_name': "hip",
-            'wrapping_margin': 1.0,
-            # 'rx_timeout_ms': 10.0,
             'control_hz': control_hz,
         }]
     )
@@ -66,7 +64,7 @@ def generate_launch_description():
             # 'wheels_linked':True, # are the wheels controlled independantly or together
             # 'hip_kp': 0.1, # hip position control P gain
             'hip_kd': 0.1, # hip position control D gain
-            'knee_kd': 1.0, # knee position control D gain
+            'knee_kd': 0.0, # knee position control D gain
             'knee_kp': 5.0, # knee position control P gain
             'max_knee_vel': 8.0,
             'hz': control_hz,
