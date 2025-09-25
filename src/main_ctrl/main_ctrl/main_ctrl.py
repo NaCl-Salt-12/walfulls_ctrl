@@ -259,6 +259,16 @@ class MainControlLoop(Node):
                         self.hip_kd,
                         0.0
                     ]
+                elif self.reset == 1:
+                    self.reset -= 1
+
+                    hip_cmd_msg.data = [
+                        self.des_hip_splay, 
+                        self.hip_vel, 
+                        transistion_kp,
+                        self.hip_kd,
+                        0.0
+                    ]
                 else:    
                 # Create and publish hip command
                     hip_cmd_msg.data = [
