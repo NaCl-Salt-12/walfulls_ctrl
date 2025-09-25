@@ -242,13 +242,13 @@ class MainControlLoop(Node):
                     self.hip_special.publish(String(data="zero"))
                     self.reset_vel= self.hip_vel
                     self.get_logger().info("Left bumper pressed - Resetting hip position to zero")
-                    self.des_hip_splay = 0.0
+                    self.des_hip_splay = self.hip_pos
                    
                 # Hip velocities
                 self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
                 hip_cmd_msg = Float64MultiArray()
 
-                if self.reset > 0:
+                if self.reset > 1:
                     self.reset -= 1
                     transistion_kp = self.hip_kp * (1 - (self.reset / self.reset_cycles))
 
