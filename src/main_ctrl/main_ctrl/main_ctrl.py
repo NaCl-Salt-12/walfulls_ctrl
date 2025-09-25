@@ -225,10 +225,10 @@ class MainControlLoop(Node):
                     last_vel = self.hip_vel
                     self.hip_special.publish(String(data="zero"))
                     self.get_logger().info("Left bumper pressed - Resetting hip position to zero")
-                    self.des_hip_splay = 0.0
+                    self.des_hip_splay = dpad_ud * self.max_hip_vel * self.dt
                     hip_cmd_msg = Float64MultiArray()
                     hip_cmd_msg.data = [
-                        0.0, 
+                        self.des_hip_splay, 
                         last_vel, 
                         0.0,
                         self.hip_kd,
