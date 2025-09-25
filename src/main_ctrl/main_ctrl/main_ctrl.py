@@ -47,6 +47,7 @@ class MainControlLoop(Node):
         self.shutdown_triggered = False
         self.motors_initialized = False
         self.control_pos = True
+        self.reset = 0
 
         self.knee_pos = 0.0
         self.knee_vel = 0.0
@@ -235,7 +236,7 @@ class MainControlLoop(Node):
 
 
                 if left_bumper:
-                    reset = 5
+                    self.reset = 5
                     self.hip_special.publish(String(data="zero"))
                     last_vel = self.hip_vel
                     self.get_logger().info("Left bumper pressed - Resetting hip position to zero")
@@ -245,8 +246,8 @@ class MainControlLoop(Node):
                 self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
                 hip_cmd_msg = Float64MultiArray()
 
-                if reset > 0:
-                    reset -= 1
+                if self.reset > 0:
+                    self.reset -= 1
 
                     hip_cmd_msg.data = [
                         self.des_hip_splay, 
