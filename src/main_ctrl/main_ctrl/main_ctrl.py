@@ -224,6 +224,7 @@ class MainControlLoop(Node):
                 if left_bumper:
                     self.hip_special.publish(String(data="zero"))
                     self.get_logger().info("Left bumper pressed - Resetting hip position to zero")
+                    self.des_hip_splay = 0.0
                 # Hip velocities
 
 
