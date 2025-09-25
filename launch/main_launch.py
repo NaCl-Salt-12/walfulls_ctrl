@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 
-control_hz = 40.0
+control_hz = 60.0
 
 
 def generate_launch_description():
