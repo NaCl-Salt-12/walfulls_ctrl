@@ -250,22 +250,24 @@ class MainControlLoop(Node):
 
                 if self.reset > 1:
                     self.reset -= 1
-                    transistion_kp = self.hip_kp * (1 - (self.reset / self.reset_cycles))
+                    # transistion_kp = self.hip_kp * (1 - (self.reset / self.reset_cycles))
 
                     hip_cmd_msg.data = [
                         self.des_hip_splay, 
                         self.reset_vel, 
-                        transistion_kp,
+                        # transistion_kp,
+                        0.0,
                         self.hip_kd,
                         0.0
                     ]
                 elif self.reset == 1:
                     self.reset -= 1
-
+                    # transistion_kp = self.hip_kp * (1 - (self.reset / self.reset_cycles))
                     hip_cmd_msg.data = [
                         self.des_hip_splay, 
                         self.hip_vel, 
-                        transistion_kp,
+                        # transistion_kp,
+                        0.0,
                         self.hip_kd,
                         0.0
                     ]
