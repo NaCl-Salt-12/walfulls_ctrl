@@ -42,6 +42,7 @@ class MainControlLoop(Node):
         self.max_wheel_vel = self.get_parameter('max_wheel_vel').value
         self.wheel_kp = self.get_parameter('wheel_kp').value
         self.wheel_kd = self.get_parameter('wheel_kd').value
+        self.reset_cycles = (self.get_parameter('hz').value / 10)
 
         # --- State Variables ---
         self.shutdown_triggered = False
@@ -237,7 +238,7 @@ class MainControlLoop(Node):
 
 
                 if left_bumper:
-                    self.reset = 5
+                    self.reset = self.reset_cycles
                     self.hip_special.publish(String(data="zero"))
                     self.reset_vel= self.hip_vel
                     self.get_logger().info("Left bumper pressed - Resetting hip position to zero")
