@@ -232,7 +232,7 @@ class MainControlLoop(Node):
                     self.des_hip_vel = 0.0
                     self.hip_kp = 1.0
                 else: 
-                    self.des_hip_splay = self.hip_pos 
+                    # self.des_hip_splay = self.hip_pos 
                     self.des_hip_splay = 0.0
                     self.des_hip_vel = dpad_ud * self.max_hip_vel 
                     self.hip_kp = 0.0
