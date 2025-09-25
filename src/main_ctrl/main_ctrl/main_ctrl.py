@@ -222,22 +222,41 @@ class MainControlLoop(Node):
 
 
                 if left_bumper:
+                    last_vel = self.hip_vel
                     self.hip_special.publish(String(data="zero"))
                     self.get_logger().info("Left bumper pressed - Resetting hip position to zero")
                     self.des_hip_splay = 0.0
+                    hip_cmd_msg = Float64MultiArray()
+                    hip_cmd_msg.data = [
+                        0.0, 
+                        last_vel, 
+                        0.0,
+                        self.hip_kd,
+                        0.0
+                    ]
+                    
                 # Hip velocities
+                else:
 
+                    if self.control_pos:
+                        self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
+                        self.des_hip_vel = 0.0
+                        self.hip_kp = 1.0
+                    else: 
+                        self.des_hip_splay = self.hip_pos 
+                        # self.des_hip_splay = 0.0
+                        self.des_hip_vel = dpad_ud * self.max_hip_vel 
+                        self.hip_kp = 0.0
 
-                if self.control_pos:
-                    self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
-                    self.des_hip_vel = 0.0
-                    self.hip_kp = 1.0
-                else: 
-                    self.des_hip_splay = self.hip_pos 
-                    # self.des_hip_splay = 0.0
-                    self.des_hip_vel = dpad_ud * self.max_hip_vel 
-                    self.hip_kp = 0.0
-                # self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
+                    # Create and publish hip command
+                    hip_cmd_msg = Float64MultiArray()
+                    hip_cmd_msg.data = [
+                        self.des_hip_splay,
+                        self.des_hip_vel, 
+                        self.hip_kp,
+                        self.hip_kd,
+                        self.des_hip_torque
+                    ]
 
                 # Create and publish knee command
                 knee_cmd_msg = Float64MultiArray()
@@ -251,15 +270,6 @@ class MainControlLoop(Node):
                 if self.knee_cmd_pub:
                     self.knee_cmd_pub.publish(knee_cmd_msg)
 
-                # Create and publish hip command
-                hip_cmd_msg = Float64MultiArray()
-                hip_cmd_msg.data = [
-                    self.des_hip_splay,
-                    self.des_hip_vel, 
-                    self.hip_kp,
-                    self.hip_kd,
-                    self.des_hip_torque
-                ]
                 if self.hip_cmd_pub:
                     self.hip_cmd_pub.publish(hip_cmd_msg)
 
