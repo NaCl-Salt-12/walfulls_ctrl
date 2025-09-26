@@ -28,6 +28,7 @@ def generate_launch_description():
             'motor_type': "AK70-10",
             'joint_name': "hip",
             'control_hz': control_hz,
+            'reverse_polarity': True,
         }]
     )
     # wheel1 = Node(
