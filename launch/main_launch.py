@@ -6,18 +6,18 @@ control_hz = 20.0
 
 
 def generate_launch_description():
-    # knee = Node(
-    #     package='cubemars_v2_ros',
-    #     executable='motor_node',
-    #     name='knee_motor_node',
-    #     namespace='knee',
-    #     parameters= [{
-    #         'can_id': 4,
-    #         'motor_type': "AK80-64",
-    #         'joint_name': "knee",
-    #         'control_hz': control_hz,
-    #     }]
-    # )
+    knee = Node(
+        package='cubemars_v2_ros',
+        executable='motor_node',
+        name='knee_motor_node',
+        namespace='knee',
+        parameters= [{
+            'can_id': 4,
+            'motor_type': "AK80-64",
+            'joint_name': "knee",
+            'control_hz': control_hz,
+        }]
+    )
     hip = Node(
         package='cubemars_v2_ros',
         executable='motor_node',
@@ -28,33 +28,33 @@ def generate_launch_description():
             'motor_type': "AK70-10",
             'joint_name': "hip",
             'control_hz': control_hz,
-            'reverse_polarity': True,
+            'reverse_polarity': False,
         }]
     )
-    # wheel1 = Node(
-    #     package='cubemars_v2_ros',
-    #     executable='motor_node',
-    #     name='wheel1_motor_node',
-    #     namespace='wheel1',
-    #     parameters= [{
-    #         'can_id': 1,
-    #         'motor_type': "AK10-9",
-    #         'joint_name': "wheel1",
-    #         'control_hz': control_hz,
-    #     }]
-    # )
-    # wheel2 = Node(
-    #     package='cubemars_v2_ros',
-    #     executable='motor_node',
-    #     name='wheel2_motor_node',
-    #     namespace='wheel2',
-    #     parameters= [{
-    #         'can_id': 2,
-    #         'motor_type': "AK10-9",
-    #         'joint_name': "wheel2",
-    #         'control_hz': control_hz,
-    #     }]  
-    # )
+    wheel1 = Node(
+        package='cubemars_v2_ros',
+        executable='motor_node',
+        name='wheel1_motor_node',
+        namespace='wheel1',
+        parameters= [{
+            'can_id': 1,
+            'motor_type': "AK10-9",
+            'joint_name': "wheel1",
+            'control_hz': control_hz,
+        }]
+    )
+    wheel2 = Node(
+        package='cubemars_v2_ros',
+        executable='motor_node',
+        name='wheel2_motor_node',
+        namespace='wheel2',
+        parameters= [{
+            'can_id': 2,
+            'motor_type': "AK10-9",
+            'joint_name': "wheel2",
+            'control_hz': control_hz,
+        }]  
+    )
 
     main_ctrl = Node(
         package='main_ctrl',
@@ -66,8 +66,8 @@ def generate_launch_description():
             # 'hip_kp': 0.1, # hip position control P gain
             'hip_kd': 0.5, # hip position control D gain
             'hip_kp': 0.0, # hip position control D gain
-            'knee_kd': 0.0, # knee position control D gain
-            'knee_kp': 5.0, # knee position control P gain
+            'knee_kd': 5.0, # knee position control D gain
+            'knee_kp': 0.0, # knee position control P gain
             'max_knee_vel': 8.0,
             'max_hip_vel': 8.0,
             'hz': control_hz,
@@ -84,10 +84,10 @@ def generate_launch_description():
         }]
     )
     return LaunchDescription([
-        # knee,
+        knee,
         hip,
-        # wheel1,
-        # wheel2,
+        wheel1,
+        wheel2,
         main_ctrl,
         joystick,
     ])

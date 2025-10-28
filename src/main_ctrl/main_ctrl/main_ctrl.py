@@ -162,26 +162,26 @@ class MainControlLoop(Node):
         try:
             # --- Mapping ---
             # button mapping
-            x_button = msg.buttons[0]
-            a_button = msg.buttons[1]
-            b_button = msg.buttons[2]
+            x_button = msg.buttons[2]
+            a_button = msg.buttons[0]
+            b_button = msg.buttons[1]
             y_button = msg.buttons[3]
-            left_bumper = msg.buttons[4]
+            # left_bumper = msg.buttons[4]
             right_bumper = msg.buttons[5]
 
             # axes mapping (fixed indices)
             if len(msg.axes) >= 6:
-                dpad_ud = msg.axes[5]  # D-pad up/down
+                dpad_ud = msg.axes[7]  # D-pad up/down
             else:
                 dpad_ud = 0.0
                 
             if len(msg.axes) > 4:
-                dpad_lr = msg.axes[4]  # D-pad left/right
+                dpad_lr = msg.axes[6]  # D-pad left/right
             else:
                 dpad_lr = 0.0
                 
             if len(msg.axes) > 3:
-                right_stick_ud = msg.axes[3]  # Right stick up/down
+                right_stick_ud = msg.axes[4]  # Right stick up/down
             else:
                 right_stick_ud = 0.0
             
@@ -202,7 +202,7 @@ class MainControlLoop(Node):
                 # Map joystick to knee velocities
                 calc_knee_vel =  self.max_knee_vel * right_stick_ud
                 # Ensure velocities are within limits
-                calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
+                # calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
                 self.des_knee_vel = calc_knee_vel
 
                 # Calculate Desired position
