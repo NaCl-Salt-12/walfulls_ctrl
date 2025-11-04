@@ -44,7 +44,7 @@ class MainControlLoop(Node):
         self.wheel_kd = self.get_parameter('wheel_kd').value
 
         # --- State Variables ---
-        self.shutdown_triggered = False
+        self.shutdown_triggered = True
         self.motors_initialized = False
 
         self.knee_pos = 0.0
@@ -153,9 +153,9 @@ class MainControlLoop(Node):
 
         time.sleep(0.1)
 
-        self.start_motors()
         self.reset_pos()
-        self.get_logger().info("Motors started")
+        self.shutdown_triggered = True
+        self.get_logger().info("Motors on standby")
         self.motors_initialized = True
 
     def joy_callback(self, msg):
