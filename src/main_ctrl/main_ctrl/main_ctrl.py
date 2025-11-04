@@ -155,7 +155,7 @@ class MainControlLoop(Node):
 
         self.reset_pos()
         self.shutdown_triggered = True
-        self.get_logger().info("Motors on standby")
+        self.get_logger().info("Motors on standby, press A to start")
         self.motors_initialized = True
 
     def joy_callback(self, msg):
