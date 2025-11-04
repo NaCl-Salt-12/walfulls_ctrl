@@ -44,7 +44,7 @@ class MainControlLoop(Node):
         self.wheel_kd = self.get_parameter('wheel_kd').value
 
         # --- State Variables ---
-        self.shutdown_triggered = False
+        self.shutdown_triggered = True
         self.motors_initialized = False
 
         self.knee_pos = 0.0
@@ -153,35 +153,35 @@ class MainControlLoop(Node):
 
         time.sleep(0.1)
 
-        self.start_motors()
         self.reset_pos()
-        self.get_logger().info("Motors started")
+        self.shutdown_triggered = True
+        self.get_logger().info("Motors on standby, press A to start")
         self.motors_initialized = True
 
     def joy_callback(self, msg):
         try:
             # --- Mapping ---
             # button mapping
-            x_button = msg.buttons[0]
-            a_button = msg.buttons[1]
-            b_button = msg.buttons[2]
+            x_button = msg.buttons[2]
+            a_button = msg.buttons[0]
+            b_button = msg.buttons[1]
             y_button = msg.buttons[3]
-            left_bumper = msg.buttons[4]
-            right_bumper = msg.buttons[5]
+            left_trigger = msg.axes[2]
+            right_trigger = msg.axes[5]
 
             # axes mapping (fixed indices)
             if len(msg.axes) >= 6:
-                dpad_ud = msg.axes[5]  # D-pad up/down
+                dpad_ud = msg.axes[7]  # D-pad up/down
             else:
                 dpad_ud = 0.0
                 
             if len(msg.axes) > 4:
-                dpad_lr = msg.axes[4]  # D-pad left/right
+                dpad_lr = msg.axes[6]  # D-pad left/right
             else:
                 dpad_lr = 0.0
                 
             if len(msg.axes) > 3:
-                right_stick_ud = msg.axes[3]  # Right stick up/down
+                right_stick_ud = msg.axes[4]  # Right stick up/down
             else:
                 right_stick_ud = 0.0
             
@@ -202,7 +202,7 @@ class MainControlLoop(Node):
                 # Map joystick to knee velocities
                 calc_knee_vel =  self.max_knee_vel * right_stick_ud
                 # Ensure velocities are within limits
-                calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
+                # calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
                 self.des_knee_vel = calc_knee_vel
 
                 # Calculate Desired position
@@ -212,7 +212,9 @@ class MainControlLoop(Node):
                 # Hip velocities
                 # self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
                 self.des_hip_splay = 0.0
-                self.des_hip_vel = dpad_ud * self.max_hip_vel 
+                # self.des_hip_vel = dpad_ud * self.max_hip_vel 
+
+                self.des_hip_vel = (((left_trigger - 1)/2) + ((right_trigger -1)/-2)) * self.max_hip_vel
                 # self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
 
                 # Create and publish knee command
