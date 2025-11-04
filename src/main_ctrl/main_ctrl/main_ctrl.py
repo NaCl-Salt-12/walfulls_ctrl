@@ -166,8 +166,8 @@ class MainControlLoop(Node):
             a_button = msg.buttons[0]
             b_button = msg.buttons[1]
             y_button = msg.buttons[3]
-            # left_bumper = msg.buttons[4]
-            right_bumper = msg.buttons[5]
+            left_trigger = msg.axes[2]
+            right_trigger = msg.axes[5]
 
             # axes mapping (fixed indices)
             if len(msg.axes) >= 6:
@@ -212,7 +212,9 @@ class MainControlLoop(Node):
                 # Hip velocities
                 # self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 
                 self.des_hip_splay = 0.0
-                self.des_hip_vel = dpad_ud * self.max_hip_vel 
+                # self.des_hip_vel = dpad_ud * self.max_hip_vel 
+
+                self.des_hip_vel = (((left_trigger - 1)/2) + ((right_trigger -1)/-2)) * self.max_hip_vel
                 # self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
 
                 # Create and publish knee command

@@ -41,6 +41,7 @@ def generate_launch_description():
             'motor_type': "AK10-9",
             'joint_name': "wheel1",
             'control_hz': control_hz,
+            'reverse_polarity': True,
         }]
     )
     wheel2 = Node(
@@ -53,6 +54,7 @@ def generate_launch_description():
             'motor_type': "AK10-9",
             'joint_name': "wheel2",
             'control_hz': control_hz,
+            'reverse_polarity': True,
         }]  
     )
 
@@ -70,6 +72,8 @@ def generate_launch_description():
             'knee_kp': 0.0, # knee position control P gain
             'max_knee_vel': 8.0,
             'max_hip_vel': 8.0,
+            'wheel_kd': 2.5,
+            'max_wheel_vel': 15.0,
             'hz': control_hz,
         }]
     )
