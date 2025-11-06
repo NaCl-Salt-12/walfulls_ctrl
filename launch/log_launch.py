@@ -106,8 +106,6 @@ def generate_launch_description():
         "-a",
         "-o",
         os.path.join(bag_folder),
-        "--storage-preset-profile",
-        "resilient",
     ]
 
     ros_bagger = ExecuteProcess(
@@ -117,6 +115,7 @@ def generate_launch_description():
         output="screen",
         emulate_tty=True,
     )
+
     return LaunchDescription(
         [
             ros_bagger,
@@ -128,4 +127,3 @@ def generate_launch_description():
             joystick,
         ]
     )
-
