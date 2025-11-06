@@ -93,7 +93,8 @@ def generate_launch_description():
         ],
     )
 
-    bag_folder = os.path.join(os.getcwd(), "bags")
+    # bag_folder = os.path.join(os.getcwd(), "bag")
+    bag_folder = os.path.expanduser(os.path.join("~", "bag_data"))
 
     date = os.popen("date +%Y-%m-%d_%H-%M-%S").read().strip()
     bag_folder = os.path.join(bag_folder, date)
