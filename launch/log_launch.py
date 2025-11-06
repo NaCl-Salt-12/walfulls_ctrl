@@ -97,7 +97,7 @@ def generate_launch_description():
 
     date = os.popen("date +%Y-%m-%d_%H-%M-%S").read().strip()
     bag_folder = os.path.join(bag_folder, date)
-    os.makedirs(bag_folder, exist_ok=True)
+    # os.makedirs(bag_folder, exist_ok=True)
 
     record_all_topics = [
         "ros2",
