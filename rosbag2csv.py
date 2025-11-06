@@ -23,7 +23,7 @@ import sys
 from rclpy.serialization import deserialize_message
 from rosidl_runtime_py.utilities import get_message
 
-if os.environ.get('ROSBAG2_PY_TEST_WITH_RTLD_GLOBAL', None) is not None:
+if os.environ.get("ROSBAG2_PY_TEST_WITH_RTLD_GLOBAL", None) is not None:
     # This is needed on Linux when compiling with clang/libc++.
     # TL;DR This makes class_loader work when using a python extension compiled with libc++.
     #
@@ -33,12 +33,13 @@ if os.environ.get('ROSBAG2_PY_TEST_WITH_RTLD_GLOBAL', None) is not None:
 import rosbag2_py  # noqa
 
 
-def get_rosbag_options(path, serialization_format='cdr'):
-    storage_options = rosbag2_py.StorageOptions(uri=path, storage_id='sqlite3')
+def get_rosbag_options(path, serialization_format="cdr"):
+    storage_options = rosbag2_py.StorageOptions(uri=path, storage_id="sqlite3")
 
     converter_options = rosbag2_py.ConverterOptions(
         input_serialization_format=serialization_format,
-        output_serialization_format=serialization_format)
+        output_serialization_format=serialization_format,
+    )
 
     return storage_options, converter_options
 
@@ -69,8 +70,9 @@ def dump_bag(bag_path):
     topic_types = reader.get_all_topics_and_types()
 
     # Create a map for quicker lookup
-    type_map = {topic_types[i].name: topic_types[i].type
-                for i in range(len(topic_types))}
+    type_map = {
+        topic_types[i].name: topic_types[i].type for i in range(len(topic_types))
+    }
 
     file_map = {}
 
@@ -84,26 +86,35 @@ def dump_bag(bag_path):
         msg = deserialize_message(data, msg_type)
 
         if topic not in file_map:
-            file = open("{}/{}.csv".format(
-                bag_path,
-                topic.lstrip("/") .replace("/", "_")),
-                "w")
-            fields = [field for field, val in _gen_msg_values(msg)
-                      if not field.startswith("header.")]
-            print("time," + ','.join(fields), file=file)
+            file = open(
+                "{}/{}.csv".format(bag_path, topic.lstrip("/").replace("/", "_")), "w"
+            )
+            fields = [
+                field
+                for field, val in _gen_msg_values(msg)
+                if not field.startswith("header.")
+            ]
+            print("time," + ",".join(fields), file=file)
             file_map[topic] = file
 
         file = file_map[topic]
         if hasattr(msg, "header"):
-            t = msg.header.stamp.sec + 1e-9*msg.header.stamp.nanosec
+            t = msg.header.stamp.sec + 1e-9 * msg.header.stamp.nanosec
         else:
-            t = ts
+            t = ts * 1e-9
         if start_time is None:
             start_time = t
-        print(','.join([str(t - start_time)] +
-                       [str(val) for field, val in _gen_msg_values(msg)
-                        if not field.startswith("header.")]),
-              file=file)
+        print(
+            ",".join(
+                [str(t - start_time)]
+                + [
+                    str(val)
+                    for field, val in _gen_msg_values(msg)
+                    if not field.startswith("header.")
+                ]
+            ),
+            file=file,
+        )
         if msg_cnt % 1000 == 0:
             print("{:5.3f}".format(t - start_time))
         msg_cnt += 1
