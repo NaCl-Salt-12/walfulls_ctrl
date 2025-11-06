@@ -106,6 +106,8 @@ def generate_launch_description():
         "-a",
         "-o",
         os.path.join(bag_folder),
+        "--storage",
+        "sqlite3",
     ]
 
     ros_bagger = ExecuteProcess(
