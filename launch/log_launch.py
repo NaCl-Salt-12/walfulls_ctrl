@@ -3,7 +3,7 @@ from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
 import os
 
-control_hz = 20
+control_hz = 20.0
 
 
 def generate_launch_description():
