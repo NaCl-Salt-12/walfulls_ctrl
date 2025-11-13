@@ -125,7 +125,6 @@ def generate_launch_description():
         shell=True,
         name="record_all_topics",
         output="screen",
-        emulate_tty=True,
     )
 
     return LaunchDescription(

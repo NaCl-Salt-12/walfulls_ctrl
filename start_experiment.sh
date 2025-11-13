@@ -1,8 +1,10 @@
 #!/bin/bash
 
+source install/setup.bash
+
 # PATH TO YOUR PRIVATE DEPLOY KEY (REQUIRED)
 # IMPORTANT: This must be the path to the private key used for GitHub deployment.
-DEPLOY_KEY_PATH=
+DEPLOY_KEY_PATH="/home/ciscor/.ssh/id_ed25519"
 
 # Set permissions for the private key (should be 600 or 400)
 chmod 600 "$DEPLOY_KEY_PATH"
