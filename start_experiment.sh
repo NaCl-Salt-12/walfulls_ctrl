@@ -18,8 +18,6 @@ fi
 echo "Starting experiment setup..."
 
 # --- 1. Determine Experiment Name ---
-# EXPERIMENT_NAME=$(python3 ./scripts/get_experiment_name.py)
-
 python3 ./scripts/get_experiment_name.py
 
 EXPERIMENT_NAME=$(cat "${HOME}/.experiment_name")
@@ -33,22 +31,6 @@ echo "Experiment name determined: ${EXPERIMENT_NAME}"
 
 rm "${HOME}/.experiment_name"
 
-# # --- 2. Pre-Launch Folder Conflict Check ---
-# # Check for any existing folders matching the expected pattern
-# PRE_EXISTING_FOLDERS=(bag_data/*"${EXPERIMENT_NAME}"*)
-#
-# # If the array has more than one item, or if the first item is a real directory
-# # (it will be the literal pattern if no directories matched)
-# if [ ${#PRE_EXISTING_FOLDERS[@]} -gt 1 ] || [ -d "${PRE_EXISTING_FOLDERS[0]}" ]; then
-# 	echo "ERROR: Folder conflict detected! Existing bag folders matching '${EXPERIMENT_NAME}' were found."
-# 	printf 'Found: %s\n' "${PRE_EXISTING_FOLDERS[@]}"
-# 	echo "Please move or delete the conflicting folders before running the experiment."
-# 	exit 1
-# fi
-#
-# echo "No conflicting folders found. Proceeding with launch."
-#
-#
 TIMESTAMP=$(date +"%Y%m%d_%H%M")
 EXPERIMENT_NAME_FULL="${TIMESTAMP}_${EXPERIMENT_NAME}"
 
@@ -56,19 +38,7 @@ EXPERIMENT_NAME_FULL="${TIMESTAMP}_${EXPERIMENT_NAME}"
 echo "Running experiment: ${EXPERIMENT_NAME}"
 ros2 launch launch/experiment_launch.py experiment_name:="${EXPERIMENT_NAME_FULL}"
 
-# --- 4. Post-Launch Folder Check and Processing ---
-# Now, we assume the launch created exactly one folder.
 BAG_FOLDER="${HOME}/bag_data/${EXPERIMENT_NAME_FULL}"
-
-# # Check if the expected single folder was created
-# if [ ! -d "${BAG_FOLDERS[0]}" ] || [ ${#BAG_FOLDERS[@]} -ne 1 ]; then
-# 	echo "ERROR: Expected exactly one folder (bag_data/*${EXPERIMENT_NAME}*) after launch, but found ${#BAG_FOLDERS[@]}."
-# 	printf 'Found: %s\n' "${BAG_FOLDERS[@]}"
-# 	exit 1
-# fi
-
-# BAG_FOLDER="${BAG_FOLDERS[0]}"
-echo "Successfully found unique experiment folder: $BAG_FOLDER"
 
 # --- 5. CSV Conversion and Renaming ---
 
