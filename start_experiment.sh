@@ -58,7 +58,7 @@ ros2 launch launch/experiment_launch.py experiment_name:="${EXPERIMENT_NAME_FULL
 
 # --- 4. Post-Launch Folder Check and Processing ---
 # Now, we assume the launch created exactly one folder.
-BAG_FOLDER="bag_data/${EXPERIMENT_NAME_FULL}"
+BAG_FOLDER="${HOME}/bag_data/${EXPERIMENT_NAME_FULL}"
 
 # # Check if the expected single folder was created
 # if [ ! -d "${BAG_FOLDERS[0]}" ] || [ ${#BAG_FOLDERS[@]} -ne 1 ]; then
