@@ -87,9 +87,9 @@ for file in "${BAG_FOLDER}"/*.csv; do
 	fi
 done
 
-DIR="$HOME/experiment_logs"
+DIR="${HOME}/experiment_logs"
 
-if [[ ! -d "DIR" ]]; then
+if [[ ! -d "$DIR" ]]; then
 	echo "ERROR: Directory $DIR does not exist."
 	exit 1
 fi
