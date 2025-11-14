@@ -261,7 +261,7 @@ if __name__ == "__main__":
 
         export_file = Path.home() / ".experiment_name"
         with open(export_file, "w") as f:
-            f.write(f"export EXPERIMENT_NAME='{final_name}'\n")
+            f.write(f"'{final_name}'")
         # print(final_name)
 
     except KeyboardInterrupt:
