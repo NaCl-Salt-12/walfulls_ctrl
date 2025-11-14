@@ -31,7 +31,7 @@ fi
 
 echo "Experiment name determined: ${EXPERIMENT_NAME}"
 
-rm cat "${HOME}/.experiment_name"
+rm "${HOME}/.experiment_name"
 
 # # --- 2. Pre-Launch Folder Conflict Check ---
 # # Check for any existing folders matching the expected pattern
