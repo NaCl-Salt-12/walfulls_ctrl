@@ -259,8 +259,10 @@ if __name__ == "__main__":
             cli.experiments[experiment_name] = trial_number
         cli.save_history()
 
-        # Print only the final name (so Bash can capture it)
-        print(final_name)
+        export_file = Path.home() / ".experiment_name"
+        with open(export_file, "w") as f:
+            f.write(f"export EXPERIMENT_NAME='{final_name}'\n")
+        # print(final_name)
 
     except KeyboardInterrupt:
         sys.exit(0)

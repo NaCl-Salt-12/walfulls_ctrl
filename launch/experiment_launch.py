@@ -103,11 +103,11 @@ def generate_launch_description():
 
     # Create bag folder with timestamp and experiment name
     bag_folder = os.path.expanduser(os.path.join("~", "bag_data"))
-    date = os.popen("date +%Y-%m-%d_%H-%M-%S").read().strip()
+    # date = os.popen("date +%Y-%m-%d_%H-%M-%S").read().strip()
 
     # Construct the bag name: timestamp_experiment_name
     # Using LaunchConfiguration in the path
-    bag_path = [bag_folder, "/", date, "_", experiment_name]
+    bag_path = [bag_folder, "/", experiment_name]
 
     record_all_topics = [
         "ros2",
@@ -125,6 +125,7 @@ def generate_launch_description():
         shell=True,
         name="record_all_topics",
         output="screen",
+        emulate_tty=False,
     )
 
     return LaunchDescription(

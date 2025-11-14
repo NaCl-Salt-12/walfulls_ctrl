@@ -1,7 +1,6 @@
 #!/bin/bash
 
-source install/setup.bash
-
+set -e
 # PATH TO YOUR PRIVATE DEPLOY KEY (REQUIRED)
 # IMPORTANT: This must be the path to the private key used for GitHub deployment.
 DEPLOY_KEY_PATH="/home/ciscor/.ssh/id_ed25519"
@@ -15,12 +14,15 @@ if [ ! -f "$DEPLOY_KEY_PATH" ]; then
 	exit 1
 fi
 # Exit immediately if a command exits with a non-zero status.
-set -e
 
 echo "Starting experiment setup..."
 
 # --- 1. Determine Experiment Name ---
-EXPERIMENT_NAME=$(python3 ./scripts/get_experiment_name.py)
+# EXPERIMENT_NAME=$(python3 ./scripts/get_experiment_name.py)
+
+python3 ./scripts/get_experiment_name.py
+
+EXPERIMENT_NAME=$(cat "${HOME}/.experiment_name")
 
 if [ -z "$EXPERIMENT_NAME" ]; then
 	echo "ERROR: Python script failed to generate an experiment name."
@@ -29,28 +31,34 @@ fi
 
 echo "Experiment name determined: ${EXPERIMENT_NAME}"
 
-# --- 2. Pre-Launch Folder Conflict Check (NEW) ---
-# Check for any existing folders matching the expected pattern
-PRE_EXISTING_FOLDERS=(bag_data/*"${EXPERIMENT_NAME}"*)
+rm cat "${HOME}/.experiment_name"
 
-# If the array has more than one item, or if the first item is a real directory
-# (it will be the literal pattern if no directories matched)
-if [ ${#PRE_EXISTING_FOLDERS[@]} -gt 1 ] || [ -d "${PRE_EXISTING_FOLDERS[0]}" ]; then
-	echo "ERROR: Folder conflict detected! Existing bag folders matching '${EXPERIMENT_NAME}' were found."
-	printf 'Found: %s\n' "${PRE_EXISTING_FOLDERS[@]}"
-	echo "Please move or delete the conflicting folders before running the experiment."
-	exit 1
-fi
-
-echo "No conflicting folders found. Proceeding with launch."
+# # --- 2. Pre-Launch Folder Conflict Check ---
+# # Check for any existing folders matching the expected pattern
+# PRE_EXISTING_FOLDERS=(bag_data/*"${EXPERIMENT_NAME}"*)
+#
+# # If the array has more than one item, or if the first item is a real directory
+# # (it will be the literal pattern if no directories matched)
+# if [ ${#PRE_EXISTING_FOLDERS[@]} -gt 1 ] || [ -d "${PRE_EXISTING_FOLDERS[0]}" ]; then
+# 	echo "ERROR: Folder conflict detected! Existing bag folders matching '${EXPERIMENT_NAME}' were found."
+# 	printf 'Found: %s\n' "${PRE_EXISTING_FOLDERS[@]}"
+# 	echo "Please move or delete the conflicting folders before running the experiment."
+# 	exit 1
+# fi
+#
+# echo "No conflicting folders found. Proceeding with launch."
+#
+#
+TIMESTAMP=$(date +"%Y%m%d_%H%M")
+EXPERIMENT_NAME_FULL=:"${TIMESTAMP}_${EXPERIMENT_NAME}"
 
 # --- 3. Experiment Launch ---
 echo "Running experiment: ${EXPERIMENT_NAME}"
-ros2 launch launch/experiment_launch.py experiment_name:="${EXPERIMENT_NAME}"
+ros2 launch launch/experiment_launch.py experiment_name:="${EXPERIMENT_NAME_FULL}"
 
 # --- 4. Post-Launch Folder Check and Processing ---
 # Now, we assume the launch created exactly one folder.
-BAG_FOLDERS=(bag_data/*"${EXPERIMENT_NAME}"*)
+BAG_FOLDERS=(bag_data/"${EXPERIMENT_NAME_FULL}")
 
 # Check if the expected single folder was created
 if [ ! -d "${BAG_FOLDERS[0]}" ] || [ ${#BAG_FOLDERS[@]} -ne 1 ]; then
@@ -82,7 +90,8 @@ done
 DIR="$HOME/experiment_logs"
 
 if [[ ! -d "DIR" ]]; then
-	mkdir "$DIR"
+	echo "ERROR: Directory $DIR does not exist."
+	exit 1
 fi
 
 cp "$BAG_FOLDER" "$DIR"
@@ -95,8 +104,8 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 BRANCH_NAME="main"
-TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-COMMIT_MESSAGE="Experiment ${EXPERIMENT_NAME} completed at ${TIMESTAMP}"
+TIMESTAMP2=$(date +"%Y-%m-%d %H:%M:%S")
+COMMIT_MESSAGE="Experiment ${EXPERIMENT_NAME} completed at ${TIMESTAMP2}"
 
 # Stage changes
 git add .
@@ -124,7 +133,7 @@ echo "Pushing to origin/$BRANCH_NAME via SSH..."
 # Use GIT_SSH_COMMAND to force SSH to use the specific key file.
 # -i <path>: Specifies the identity (key) file.
 # -o IdentitiesOnly=yes: Prevents SSH from attempting to use other keys in the agent.
-# -o StrictHostKeyChecking=no: Avoids being prompted to confirm the host key on first connect (use with caution).
+# -o StrictHostKeyChecking=no: Avoids being prompted to confirm the host key on first connect
 GIT_SSH_COMMAND="ssh -i $DEPLOY_KEY_PATH -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" git push origin "$BRANCH_NAME"
 
 # Check the exit status of the push command
