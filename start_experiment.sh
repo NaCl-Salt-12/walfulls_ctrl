@@ -94,7 +94,7 @@ if [[ ! -d "$DIR" ]]; then
 	exit 1
 fi
 
-cp "$BAG_FOLDER" "$DIR"
+cp -r "$BAG_FOLDER" "$DIR"
 
 cd "$DIR"
 
