@@ -107,6 +107,12 @@ BRANCH_NAME="main"
 TIMESTAMP2=$(date +"%Y-%m-%d %H:%M:%S")
 COMMIT_MESSAGE="Experiment ${EXPERIMENT_NAME} completed at ${TIMESTAMP2}"
 
+git remote set-url origin git@github.com:Optimal-Robotics-Lab/wafulls_boom_data.git
+
+# Verify the change (optional)
+echo "Origin remote set to:"
+git remote -v
+
 # Stage changes
 git add .
 echo "Staged all changes (git add .)"
