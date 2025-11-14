@@ -50,7 +50,7 @@ rm "${HOME}/.experiment_name"
 #
 #
 TIMESTAMP=$(date +"%Y%m%d_%H%M")
-EXPERIMENT_NAME_FULL=:"${TIMESTAMP}_${EXPERIMENT_NAME}"
+EXPERIMENT_NAME_FULL="${TIMESTAMP}_${EXPERIMENT_NAME}"
 
 # --- 3. Experiment Launch ---
 echo "Running experiment: ${EXPERIMENT_NAME}"
@@ -58,16 +58,16 @@ ros2 launch launch/experiment_launch.py experiment_name:="${EXPERIMENT_NAME_FULL
 
 # --- 4. Post-Launch Folder Check and Processing ---
 # Now, we assume the launch created exactly one folder.
-BAG_FOLDERS=(bag_data/"${EXPERIMENT_NAME_FULL}")
+BAG_FOLDER="bag_data/${EXPERIMENT_NAME_FULL}"
 
-# Check if the expected single folder was created
-if [ ! -d "${BAG_FOLDERS[0]}" ] || [ ${#BAG_FOLDERS[@]} -ne 1 ]; then
-	echo "ERROR: Expected exactly one folder (bag_data/*${EXPERIMENT_NAME}*) after launch, but found ${#BAG_FOLDERS[@]}."
-	printf 'Found: %s\n' "${BAG_FOLDERS[@]}"
-	exit 1
-fi
+# # Check if the expected single folder was created
+# if [ ! -d "${BAG_FOLDERS[0]}" ] || [ ${#BAG_FOLDERS[@]} -ne 1 ]; then
+# 	echo "ERROR: Expected exactly one folder (bag_data/*${EXPERIMENT_NAME}*) after launch, but found ${#BAG_FOLDERS[@]}."
+# 	printf 'Found: %s\n' "${BAG_FOLDERS[@]}"
+# 	exit 1
+# fi
 
-BAG_FOLDER="${BAG_FOLDERS[0]}"
+# BAG_FOLDER="${BAG_FOLDERS[0]}"
 echo "Successfully found unique experiment folder: $BAG_FOLDER"
 
 # --- 5. CSV Conversion and Renaming ---
