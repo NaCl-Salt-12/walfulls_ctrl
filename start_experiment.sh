@@ -88,7 +88,6 @@ SAVE_LOCATION="${STAGE_PATH}/${EXPERIMENT_NAME_FULL}"
 # ============================================================================
 
 echo "Running experiment: ${EXPERIMENT_NAME}"
-echo launch/experiment_launch.py experiment_name:="${SAVE_LOCATION}"
 ros2 launch launch/experiment_launch.py save_location:="${SAVE_LOCATION}"
 
 # ============================================================================
