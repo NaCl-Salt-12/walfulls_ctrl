@@ -8,7 +8,7 @@ from pathlib import Path
 class ExperimentCLI:
     def __init__(self):
         # File to store experiment history
-        self.history_file = Path.home() / ".experiment_history.json"
+        self.history_file = Path(__file__).parent / ".experiment_history.json"
         self.load_history()
 
     def clear_terminal(self):

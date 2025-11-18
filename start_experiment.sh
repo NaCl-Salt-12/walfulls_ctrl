@@ -1,124 +1,221 @@
 #!/bin/bash
-
 set -e
-# PATH TO YOUR PRIVATE DEPLOY KEY (REQUIRED)
-# IMPORTANT: This must be the path to the private key used for GitHub deployment.
-DEPLOY_KEY_PATH="/home/ciscor/.ssh/id_ed25519"
 
-# Set permissions for the private key (should be 600 or 400)
-chmod 600 "$DEPLOY_KEY_PATH"
+# ============================================================================
+# Configuration
+# ============================================================================
 
-if [ ! -f "$DEPLOY_KEY_PATH" ]; then
-	echo "ERROR: Deploy key file not found at: $DEPLOY_KEY_PATH"
-	echo "Please ensure the path is correct and the file has 400 or 600 permissions."
-	exit 1
-fi
-# Exit immediately if a command exits with a non-zero status.
+# Path to your private deploy key (REQUIRED)
+DEPLOY_KEY_PATH="${HOME}/.ssh/id_ed25519"
+
+# Path to staged bag data/local backup
+STAGE_PATH="${HOME}/bag_data"
+
+# Location of the Git repository where experiment logs are stored
+GIT_PATH="${HOME}/experiment_logs"
+
+# GitHub repository SSH URL (find on GitHub under "Code" -> "SSH")
+SSH_URL="git@github.com:Optimal-Robotics-Lab/wafulls_boom_data.git"
+
+# Git branch to push to
+BRANCH_NAME="main"
+
+# ============================================================================
+# Validation
+# ============================================================================
 
 echo "Starting experiment setup..."
 
-# --- 1. Determine Experiment Name ---
+# Check if deploy key exists
+if [[ ! -f "$DEPLOY_KEY_PATH" ]]; then
+	echo "ERROR: Deploy key not found at: $DEPLOY_KEY_PATH"
+	echo "Please ensure the path is correct and the file exists."
+	exit 1
+fi
+
+# Set correct permissions for the private key
+chmod 600 "$DEPLOY_KEY_PATH"
+
+# Check if stage path exists
+if [[ ! -d "$STAGE_PATH" ]]; then
+	echo "WARNING: Stage path does not exist. Creating: $STAGE_PATH"
+	mkdir -p "$STAGE_PATH"
+fi
+
+# Check if git repository exists
+if [[ ! -d "$GIT_PATH" ]]; then
+	echo "ERROR: Git repository path does not exist: $GIT_PATH"
+	exit 1
+fi
+
+if source install/setup.bash; then
+	echo "Sourced ROS2 workspace successfully."
+else
+	echo "ERROR: Failed to source ROS2 workspace. Ensure the path is correct."
+	exit 1
+fi
+
+# ============================================================================
+# Determine Experiment Name
+# ============================================================================
+
 python3 ./scripts/get_experiment_name.py
 
-EXPERIMENT_NAME=$(cat "${HOME}/.experiment_name")
-
-if [ -z "$EXPERIMENT_NAME" ]; then
-	echo "ERROR: Python script failed to generate an experiment name."
+# Retrieve the experiment name from temporary file
+EXPERIMENT_NAME_FILE="${HOME}/.experiment_name"
+if [[ ! -f "$EXPERIMENT_NAME_FILE" ]]; then
+	echo "ERROR: Experiment name file not created by Python script."
 	exit 1
 fi
 
-echo "Experiment name determined: ${EXPERIMENT_NAME}"
+EXPERIMENT_NAME=$(cat "$EXPERIMENT_NAME_FILE")
+rm "$EXPERIMENT_NAME_FILE"
 
-rm "${HOME}/.experiment_name"
+if [[ -z "$EXPERIMENT_NAME" ]]; then
+	echo "ERROR: Python script generated an empty experiment name."
+	exit 1
+fi
 
+echo "Experiment name: ${EXPERIMENT_NAME}"
+
+# Create full experiment name with timestamp
 TIMESTAMP=$(date +"%Y%m%d_%H%M")
 EXPERIMENT_NAME_FULL="${TIMESTAMP}_${EXPERIMENT_NAME}"
+SAVE_LOCATION="${STAGE_PATH}/${EXPERIMENT_NAME_FULL}"
 
-# --- 3. Experiment Launch ---
+# ============================================================================
+# Run Experiment
+# ============================================================================
+
 echo "Running experiment: ${EXPERIMENT_NAME}"
-ros2 launch launch/experiment_launch.py experiment_name:="${EXPERIMENT_NAME_FULL}"
+echo launch/experiment_launch.py experiment_name:="${SAVE_LOCATION}"
+ros2 launch launch/experiment_launch.py save_location:="${SAVE_LOCATION}"
 
-BAG_FOLDER="${HOME}/bag_data/${EXPERIMENT_NAME_FULL}"
+# ============================================================================
+# Post-Processing
+# ============================================================================
 
-# --- 5. CSV Conversion and Renaming ---
+echo "Converting bag files to CSV..."
+python3 ./scripts/rosbag2csv.py "$SAVE_LOCATION"
 
-# Convert the bag file to CSVs
-python3 ./scripts/rosbag2csv.py "$BAG_FOLDER"
-
-# Rename the generated CSV files
-for file in "${BAG_FOLDER}"/*.csv; do
-	# Check if a file was actually found
-	if [ -f "$file" ]; then
-		file_name=$(basename "$file")
-		new_name="${BAG_FOLDER}/${EXPERIMENT_NAME}_${file_name}"
-
-		echo "Renaming '$file' to '$new_name'"
-		mv "$file" "$new_name"
-	fi
+# Rename CSV files with experiment name prefix
+echo "Renaming CSV files..."
+shopt -s nullglob # Prevent loop from running if no files match
+for file in "${SAVE_LOCATION}"/*.csv; do
+	file_name=$(basename "$file")
+	new_name="${SAVE_LOCATION}/${EXPERIMENT_NAME}_${file_name}"
+	echo "  $file_name -> ${EXPERIMENT_NAME}_${file_name}"
+	mv "$file" "$new_name"
 done
+shopt -u nullglob
 
-DIR="${HOME}/experiment_logs"
+# ============================================================================
+# Git Operations
+# ============================================================================
 
-if [[ ! -d "$DIR" ]]; then
-	echo "ERROR: Directory $DIR does not exist."
-	exit 1
-fi
+echo "Copying experiment data to Git repository..."
+cp -r "$SAVE_LOCATION" "$GIT_PATH"
 
-cp -r "$BAG_FOLDER" "$DIR"
+cd "$GIT_PATH"
 
-cd "$DIR"
-
+# Verify we're in a Git repository
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-	echo "ERROR: Not currently inside a Git repository."
+	echo "ERROR: $GIT_PATH is not a Git repository."
 	exit 1
 fi
 
-BRANCH_NAME="main"
+# Set remote URL
+git remote set-url origin "${SSH_URL}"
+
+# Stage all changes
+git add .
+echo "Staged all changes"
+
+# Commit changes
 TIMESTAMP2=$(date +"%Y-%m-%d %H:%M:%S")
 COMMIT_MESSAGE="Experiment ${EXPERIMENT_NAME} completed at ${TIMESTAMP2}"
 
-git remote set-url origin git@github.com:Optimal-Robotics-Lab/wafulls_boom_data.git
-
-# Verify the change (optional)
-echo "Origin remote set to:"
-git remote -v
-
-# Stage changes
-git add .
-echo "Staged all changes (git add .)"
-
-# Commit staged changes
-if git commit -m "$COMMIT_MESSAGE"; then
-	echo "Successfully committed changes: \"$COMMIT_MESSAGE\""
-else
-	# Check if the commit failed because there were no changes
-	if git status --porcelain | grep -q '^\?'; then
-		# This means there were untracked files, but no tracked file changes. Commit still failed.
-		echo "ERROR: Commit failed. Check git status."
-		exit 1
-	else
-		# No actual changes to commit (tracked files are clean)
-		echo "No changes detected. Skipping commit and push."
-		exit 0
-	fi
+if git diff --cached --quiet; then
+	echo "No changes to commit. Skipping commit and push."
+	exit 0
 fi
 
-# Push using the specific deploy key
-echo "Pushing to origin/$BRANCH_NAME via SSH..."
+git commit -m "$COMMIT_MESSAGE"
+echo "Committed: \"$COMMIT_MESSAGE\""
 
-# Use GIT_SSH_COMMAND to force SSH to use the specific key file.
-# -i <path>: Specifies the identity (key) file.
-# -o IdentitiesOnly=yes: Prevents SSH from attempting to use other keys in the agent.
-# -o StrictHostKeyChecking=no: Avoids being prompted to confirm the host key on first connect
-GIT_SSH_COMMAND="ssh -i $DEPLOY_KEY_PATH -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" git push origin "$BRANCH_NAME"
-
-# Check the exit status of the push command
-if [ $? -eq 0 ]; then
-	echo "DEPLOYMENT SUCCESSFUL!"
+# Push using specific deploy key
+echo "Pushing to origin/$BRANCH_NAME..."
+if GIT_SSH_COMMAND="ssh -i $DEPLOY_KEY_PATH -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" git push origin "$BRANCH_NAME"; then
+	echo "✓ DEPLOYMENT SUCCESSFUL!"
 else
-	echo "DEPLOYMENT FAILED during push."
+	echo "✗ DEPLOYMENT FAILED during push."
 	exit 1
 fi
 
-# Clean up environment variable
-unset GIT_SSH_COMMANDxit 0
+echo "Experiment pipeline completed successfully."
+exit 0
+ros2 launch launch/experiment_launch.py experiment_name:="${SAVE_LOCATION}"
+
+# ============================================================================
+# Post-Processing
+# ============================================================================
+
+echo "Converting bag files to CSV..."
+python3 ./scripts/rosbag2csv.py "$SAVE_LOCATION"
+
+# Rename CSV files with experiment name prefix
+echo "Renaming CSV files..."
+shopt -s nullglob # Prevent loop from running if no files match
+for file in "${SAVE_LOCATION}"/*.csv; do
+	file_name=$(basename "$file")
+	new_name="${SAVE_LOCATION}/${EXPERIMENT_NAME}_${file_name}"
+	echo "  $file_name -> ${EXPERIMENT_NAME}_${file_name}"
+	mv "$file" "$new_name"
+done
+shopt -u nullglob
+
+# ============================================================================
+# Git Operations
+# ============================================================================
+
+echo "Copying experiment data to Git repository..."
+cp -r "$SAVE_LOCATION" "$GIT_PATH"
+
+cd "$GIT_PATH"
+
+# Verify we're in a Git repository
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+	echo "ERROR: $GIT_PATH is not a Git repository."
+	exit 1
+fi
+
+# Set remote URL
+git remote set-url origin "${SSH_URL}"
+
+# Stage all changes
+git add .
+echo "Staged all changes"
+
+# Commit changes
+TIMESTAMP2=$(date +"%Y-%m-%d %H:%M:%S")
+COMMIT_MESSAGE="Experiment ${EXPERIMENT_NAME} completed at ${TIMESTAMP2}"
+
+if git diff --cached --quiet; then
+	echo "No changes to commit. Skipping commit and push."
+	exit 0
+fi
+
+git commit -m "$COMMIT_MESSAGE"
+echo "Committed: \"$COMMIT_MESSAGE\""
+
+# Push using specific deploy key
+echo "Pushing to origin/$BRANCH_NAME..."
+if GIT_SSH_COMMAND="ssh -i $DEPLOY_KEY_PATH -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" git push origin "$BRANCH_NAME"; then
+	echo "✓ DEPLOYMENT SUCCESSFUL!"
+else
+	echo "✗ DEPLOYMENT FAILED during push."
+	exit 1
+fi
+
+echo "Experiment pipeline completed successfully."
+exit 0

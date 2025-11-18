@@ -1,4 +1,0 @@
-
-DEPLOY_KEY_PATH="/home/ciscor/.ssh/id_ed25519"
-
-git remote set-url origin git@github.com:Optimal-Robotics-Lab/wafulls_boom_data.git
