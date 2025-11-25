@@ -116,7 +116,7 @@ def dump_bag(bag_path):
             file=file,
         )
         if msg_cnt % 1000 == 0:
-            print("{:5.3f}".format(t - start_time))
+            print("{:5.3f}".format(t))
         msg_cnt += 1
 
 
