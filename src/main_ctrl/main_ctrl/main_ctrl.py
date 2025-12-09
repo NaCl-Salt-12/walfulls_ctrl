@@ -203,11 +203,11 @@ class MainControlLoop(Node):
                 calc_knee_vel =  self.max_knee_vel * right_stick_ud
                 # Ensure velocities are within limits
                 # calc_knee_vel = max(min(calc_knee_vel, self.max_knee_vel), -self.max_knee_vel)
-                self.des_knee_vel = calc_knee_vel
+                # self.des_knee_vel = calc_knee_vel
 
                 # Calculate Desired position
-                # self.des_knee_pos= self.knee_pos + calc_knee_vel * self.dt
-                self.des_knee_pos = 0.0
+                self.des_knee_pos= self.knee_pos + calc_knee_vel * self.dt
+                # self.des_knee_pos = 0.0
 
                 # Hip velocities
                 # self.des_hip_splay = self.des_hip_splay + dpad_ud * self.max_hip_vel * self.dt 

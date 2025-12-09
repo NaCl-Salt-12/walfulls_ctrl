@@ -4,7 +4,7 @@ from launch.actions import ExecuteProcess, DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 import os
 
-control_hz = 20.0
+control_hz = 60.0
 
 def generate_launch_description():
     # Declare the experiment name argument
@@ -77,14 +77,13 @@ def generate_launch_description():
             'temp_limit_c':80.0, # temperature safety limit
             # 'wheels_linked':True, # are the wheels controlled independantly or together
             # 'hip_kp': 0.1, # hip position control P gain
-            'hip_kd': 0.5, # hip position control D gain
+            'hip_kd': 6.5, # hip position control D gain
             'hip_kp': 0.0, # hip position control D gain
             'knee_kd': 5.0, # knee position control D gain
-            'knee_kp': 0.0, # knee position control P gain
+            'knee_kp': 300.0, # knee position control P gain
             'max_knee_vel': 8.0,
-            'max_hip_vel': 8.0,
-            'wheel_kd': 2.5,
-            'max_wheel_vel': 15.0,
+            'max_hip_vel': 16.0,
+            'max_wheel_vel': 8.0,
             'hz': control_hz,
         }]
     )

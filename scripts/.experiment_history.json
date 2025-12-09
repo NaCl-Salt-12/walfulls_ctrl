@@ -1,4 +1,13 @@
 {
   "testing": 1,
-  "setup_test": 9
+  "setup_test": 9,
+  "hip_param_test": 1,
+  "pushup_0lbs": 1,
+  "pushup_10lbs": 1,
+  "pushup_25lbs": 1,
+  "pushup_35lbs": 1,
+  "pushup_45lbs": 1,
+  "pushup_55lbs": 3,
+  "pushup_65lbs": 7,
+  "pushup_75lbs": 1
 }
