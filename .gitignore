@@ -18,6 +18,6 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
-scripts/script_env/
+script_env/
 ~                                                                               
 ~                           
