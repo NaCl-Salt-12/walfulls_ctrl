@@ -80,7 +80,7 @@ def generate_launch_description():
             'hip_kd': 6.5, # hip position control D gain
             'hip_kp': 0.0, # hip position control D gain
             'knee_kd': 5.0, # knee position control D gain
-            'knee_kp': 300.0, # knee position control P gain
+            'knee_kp': 0.0, # knee position control P gain
             'max_knee_vel': 8.0,
             'max_hip_vel': 16.0,
             'max_wheel_vel': 8.0,
