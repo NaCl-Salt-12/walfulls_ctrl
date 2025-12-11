@@ -108,6 +108,15 @@ for file in "${SAVE_LOCATION}"/*.csv; do
 done
 shopt -u nullglob
 
+echo "Cleaning MIT CSV files..."
+source "scripts/script_env/bin/activate"
+shopt -s nullglob # Prevent loop from running if no files match
+for file in "${SAVE_LOCATION}"/*mit_cmd.csv; do
+	./scripts/mit_cleaner.py "$file"
+	echo "  $file_name successfully cleaned"
+done
+shopt -u nullglob
+
 # ============================================================================
 # Git Operations
 # ============================================================================

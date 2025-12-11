@@ -4,7 +4,7 @@ from launch.actions import ExecuteProcess, DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 import os
 
-control_hz = 60.0
+control_hz = 80.0
 
 def generate_launch_description():
     # Declare the experiment name argument
@@ -84,7 +84,7 @@ def generate_launch_description():
             'max_knee_vel': 8.0,
             'max_hip_vel': 16.0,
             'max_wheel_vel': 8.0,
-            'hz': control_hz,
+            'hz': 40.0,
         }]
     )
 
