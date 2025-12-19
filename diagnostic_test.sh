@@ -1,41 +1,57 @@
 #!/bin/bash
 
+# Configuration
 INTERFACE="can0"
 INTERFACE_BITRATE="1000000"
 
-# ==== Phase 1: Check CAN Interface Status ====
+echo "=== CAN Interface Diagnostic Script ==="
+echo "Target interface: $INTERFACE"
+echo "Expected bitrate: $INTERFACE_BITRATE bit/s"
+echo
 
-# Check if the interface exists at all
+# ==== Phase 1: Check if CAN Interface Exists ====
 if [ ! -d "/sys/class/net/$INTERFACE" ]; then
-	echo "Error: $INTERFACE does not exist."
-	echo "Recommended fix:  Ensure the CAN interface is properly configured and connected."
+	echo "ERROR: Interface $INTERFACE does not exist."
+	echo
+	echo "Recommended fix:"
+	echo "  - Ensure the CAN hardware is properly connected."
+	echo "  - Configure the interface with 'sudo ip link set $INTERFACE up type can bitrate $INTERFACE_BITRATE'"
 	exit 1
 fi
 
-# 2. Check if the interface is "up"
-STATUS=$(cat /sys/class/net/$INTERFACE/operstate)
+echo "$INTERFACE interface found."
 
-if [ "$STATUS" = "up" ]; then
+# ==== Phase 2: Check if Interface is UP ====
+STATUS=$(cat /sys/class/net/$INTERFACE/operstate 2>/dev/null || echo "unknown")
+
+if [ "$STATUS" == "up" ]; then
 	echo "$INTERFACE is UP and running."
 else
-	echo "$INTERFACE is DOWN."
-	echo "Recommended fix:  Reboot the can bus interface or check physical connections.
-  To bring the interface up manually, use the command:
-  sudo ip link set $INTERFACE DOWN && sudo ip link set $INTERFACE UP"
+	echo "WARNING: $INTERFACE is currently DOWN (operstate: $STATUS)."
+	echo
+	echo "Recommended fix:"
+	echo "  - Check physical connections and power to the CAN transceiver."
+	echo "  - Bring the interface up manually:"
+	echo "      sudo ip link set $INTERFACE down"
+	echo "      sudo ip link set $INTERFACE up type can bitrate $INTERFACE_BITRATE"
+	echo "  - Or run the reboot script if available:"
 	exit 1
 fi
 
-if ! ip -details -statistics link show "$INTERFACE" | grep -q "bitrate $INTERFACE_BITRATE"; then
-	echo "Error: $INTERFACE bitrate is not set to $INTERFACE_BITRATE."
-	echo "Recommended fix:  Set the CAN interface bitrate to $INTERFACE_BITRATE using the command:
-  sudo ip link set $INTERFACE type can bitrate $INTERFACE_BITRATE"
-
+# ==== Phase 3: Verify Bitrate ====
+if ip -details link show "$INTERFACE" | grep -q "bitrate $INTERFACE_BITRATE"; then
+	echo "$INTERFACE bitrate is correctly set to $INTERFACE_BITRATE bit/s."
+else
+	echo "WARNING: Bitrate mismatch detected."
+	echo "Current configuration does not show the expected bitrate of $INTERFACE_BITRATE."
+	echo
+	echo "Recommended fix:"
+	echo "  sudo ip link set $INTERFACE down"
+	echo "  sudo ip link set $INTERFACE up type can bitrate $INTERFACE_BITRATE"
 fi
 
-# if ! ip -details -statistics link show "$INTERFACE" | grep -q "RX: bytes 0"; then
-# 	DATA_RECEIVED="True"
-# fi
+echo
+echo "=== Proceeding to Motor Status Check ==="
+echo
 
-echo "Checking motor status on $INTERFACE..."
-
-scripts/check_motor_status.py -i $INTERFACE 1 2 3 4
+scripts/check_motor_status.py --interface $INTERFACE 1 2 3 4
