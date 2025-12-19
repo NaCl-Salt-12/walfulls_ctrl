@@ -170,7 +170,7 @@ def main():
         print("TEST SUMMARY")
         print(f"{'=' * 60}")
 
-        max_length = max(len(label) for label in results.items())
+        max_length = max(len(node["label"]) for node["label"] in nodes)
 
         for label, responded in results.items():
             status = "✓ ONLINE" if responded else "✗ OFFLINE"
