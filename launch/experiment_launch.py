@@ -78,13 +78,14 @@ def generate_launch_description():
             # 'wheels_linked':True, # are the wheels controlled independantly or together
             # 'hip_kp': 0.1, # hip position control P gain
             'hip_kd': 6.5, # hip position control D gain
-            'hip_kp': 0.0, # hip position control D gain
-            'knee_kd': 5.0, # knee position control D gain
+            'hip_kp': 0.0, # hip position control P gain
+            'knee_kd': 10.0, # knee position control D gain
             'knee_kp': 0.0, # knee position control P gain
             'max_knee_vel': 8.0,
             'max_hip_vel': 16.0,
-            'max_wheel_vel': 8.0,
-            'hz': 40.0,
+            'max_wheel_vel': 6.0,
+            'wheel_kd' : 5.0,
+            'hz': 20.0,
         }]
     )
 

@@ -9,5 +9,12 @@
   "pushup_45lbs": 1,
   "pushup_55lbs": 3,
   "pushup_65lbs": 7,
-  "pushup_75lbs": 1
+  "pushup_75lbs": 1,
+  "stair_2h_0lbs": 4,
+  "stair_3h_0lbs": 2,
+  "stair_3h_25lbs": 2,
+  "stair_3h_35lbs": 1,
+  "stair_3h_45lbs": 2,
+  "vel_control_45lbs": 6,
+  "torque_calc_cal": 1
 }
