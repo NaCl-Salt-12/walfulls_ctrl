@@ -54,4 +54,5 @@ echo
 echo "=== Proceeding to Motor Status Check ==="
 echo
 
-scripts/check_motor_status.py --interface $INTERFACE 1 2 3 4
+# scripts/check_motor_status.py --interface $INTERFACE 1 2 3 4
+scripts/check_motor.py ./docs/can_id_map.json
