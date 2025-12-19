@@ -1,6 +1,6 @@
 import threading
 import rclpy
-from rclpy.node import Node
+from rclpy. node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64MultiArray, Int32, String
@@ -20,7 +20,7 @@ class MainControlLoop(Node):
         # self.declare_parameter('wheels_linked', True)  # are the wheels controlled independently or together
         self.declare_parameter("max_knee_vel", 11.0)
         self.declare_parameter("max_hip_vel", 2.5)
-        self.declare_parameter("hz", 20.0)  # Control loop frequency in Hz
+        self.declare_parameter("hz", 20. 0)  # Control loop frequency in Hz
         self.declare_parameter("knee_kp", 0.0)
         self.declare_parameter("hip_kp", 2.0)
         self.declare_parameter("knee_kd", 1.0)
@@ -31,21 +31,24 @@ class MainControlLoop(Node):
 
         # Retrieve parameters
         self.temp_limit_c = self.get_parameter("temp_limit_c").value
-        # self.wheels_linked = self.get_parameter('wheels_linked').value
+        # self.wheels_linked = self. get_parameter('wheels_linked').value
         self.max_knee_vel = self.get_parameter("max_knee_vel").value
-        self.max_hip_vel = self.get_parameter("max_hip_vel").value
+        self. max_hip_vel = self. get_parameter("max_hip_vel").value
         self.knee_kp = self.get_parameter("knee_kp").value
         self.hip_kp = self.get_parameter("hip_kp").value
-        self.knee_kd = self.get_parameter("knee_kd").value
+        self.knee_kd = self. get_parameter("knee_kd").value
         self.hip_kd = self.get_parameter("hip_kd").value
         self.dt = 1.0 / self.get_parameter("hz").value
         self.max_wheel_vel = self.get_parameter("max_wheel_vel").value
-        self.wheel_kp = self.get_parameter("wheel_kp").value
+        self.wheel_kp = self. get_parameter("wheel_kp").value
         self.wheel_kd = self.get_parameter("wheel_kd").value
 
         # --- State Variables ---
         self.shutdown_triggered = True
         self.motors_initialized = False
+        
+        # Initialize lock early
+        self._lock = threading.Lock()
 
         self.knee_pos = 0.0
         self.knee_vel = 0.0
@@ -56,7 +59,7 @@ class MainControlLoop(Node):
         self.hip_pos = 0.0
         self.hip_vel = 0.0
         self.des_hip_vel = 0.0
-        self.des_hip_torque = 0.0
+        self. des_hip_torque = 0.0
 
         self.knee_torque = 0.0
         self.hip_torque = 0.0
@@ -70,20 +73,31 @@ class MainControlLoop(Node):
         self.wheel2_vel = 0.0
         self.wheel1_pos = 0.0
         self.wheel2_pos = 0.0
-        self.wheel1_torque = 0.0
+        self. wheel1_torque = 0.0
         self.wheel2_torque = 0.0
         self.des_wheel_pos = 0.0
         self.des_wheel_torque = 0.0
 
+        # Initialize command messages
+        self.knee_cmd = Float64MultiArray()
+        self.hip_cmd = Float64MultiArray()
+        self.wheel_cmd = Float64MultiArray()
+        
+        # Initialize special command messages
+        self.knee_special_msg = String()
+        self.hip_special_msg = String()
+        self.wheel1_special_msg = String()
+        self.wheel2_special_msg = String()
+
         # Initialize publishers to None
         self.knee_cmd_pub = None
-        self.hip_cmd_pub = None
+        self. hip_cmd_pub = None
         self.knee_special = None
         self.hip_special = None
         self.wheel1_cmd_pub = None
-        self.wheel2_cmd_pub = None
+        self. wheel2_cmd_pub = None
         self.wheel1_special = None
-        self.wheel2_special = None
+        self. wheel2_special = None
 
         # --- ROS Publishers and Subscribers
         self.joystick_subscriber = self.create_subscription(
@@ -98,8 +112,6 @@ class MainControlLoop(Node):
 
         self.get_logger().info("Initializing Motors...")
 
-        self._lock = threading.Lock()
-
         # Create publishers
         self.knee_cmd_pub = self.create_publisher(
             Float64MultiArray, "/knee/mit_cmd", qos_profile
@@ -109,7 +121,7 @@ class MainControlLoop(Node):
             Float64MultiArray, "/hip/mit_cmd", qos_profile
         )
         time.sleep(0.01)
-        self.knee_special = self.create_publisher(
+        self.knee_special = self. create_publisher(
             String, "/knee/special_cmd", qos_profile
         )
         time.sleep(0.01)
@@ -125,7 +137,7 @@ class MainControlLoop(Node):
             Float64MultiArray, "/wheel2/mit_cmd", qos_profile
         )
         time.sleep(0.01)
-        self.wheel1_special = self.create_publisher(
+        self.wheel1_special = self. create_publisher(
             String, "/wheel1/special_cmd", qos_profile
         )
         time.sleep(0.01)
@@ -151,7 +163,7 @@ class MainControlLoop(Node):
 
         time.sleep(0.01)
         self.wheel1_error = self.create_subscription(
-            String, "/wheel1/error_code", self.wheel1_error_callback, subscriber_qos
+            String, "/wheel1/error_code", self. wheel1_error_callback, subscriber_qos
         )
 
         time.sleep(0.01)
@@ -191,7 +203,7 @@ class MainControlLoop(Node):
 
         time.sleep(0.1)
 
-        self.reset_pos()  # do I keep this?
+        self.reset_pos()  # do I keep this? 
         self.shutdown_triggered = True
         self.get_logger().info("Motors on standby, press A to start")
         self.motors_initialized = True
@@ -232,7 +244,7 @@ class MainControlLoop(Node):
             if self.shutdown_triggered and a_button:
                 self.get_logger().info("A button pressed - Re-starting motors")
                 self.shutdown_triggered = False
-                self.start_motors()
+                self. start_motors()
 
             if self.motors_initialized and not self.shutdown_triggered:
                 # Map joystick to knee velocities
@@ -253,7 +265,7 @@ class MainControlLoop(Node):
                 self.des_hip_vel = (
                     ((left_trigger - 1) / 2) + ((right_trigger - 1) / -2)
                 ) * self.max_hip_vel
-                # self.des_hip_splay = max(min(self.des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
+                # self.des_hip_splay = max(min(self. des_hip_splay, self.max_hip_angle), self.min_hip_angle) # * 33.0 # convert to motor units due to gearing
 
                 # Create and publish knee command
                 knee_cmd_msg = Float64MultiArray()
@@ -280,7 +292,7 @@ class MainControlLoop(Node):
                 self.hip_cmd = hip_cmd_msg
 
                 self.des_wheel_vel = self.max_wheel_vel * left_stick_ud
-                self.des_wheel_vel = max(
+                self. des_wheel_vel = max(
                     min(self.des_wheel_vel, self.max_wheel_vel), -self.max_wheel_vel
                 )
 
@@ -296,7 +308,7 @@ class MainControlLoop(Node):
                 self.wheel_cmd = wheel_cmd_msg
 
                 if b_button:
-                    self.get_logger().info("B button pressed - Stopping motors")
+                    self. get_logger().info("B button pressed - Stopping motors")
                     self.kill_motors()
                     self.shutdown_triggered = True
 
@@ -305,27 +317,38 @@ class MainControlLoop(Node):
 
     def _publish_tick(self):
         with self._lock:
-            if self.knee_special:
-                self.knee_special.publish(self.knee_special)
-            if self.hip_special:
-                self.hip_special.publish(self.hip_special)
-            if self.wheel1_special:
-                self.wheel1_special.publish(self.wheel1_special)
-            if self.wheel2_special:
-                self.wheel2_special.publish(self.wheel2_special)
+            # Publish special commands if they have content
+            if self.knee_special and self.knee_special_msg. data:
+                self.knee_special. publish(self.knee_special_msg)
+            if self.hip_special and self.hip_special_msg.data:
+                self.hip_special.publish(self.hip_special_msg)
+            if self.wheel1_special and self.wheel1_special_msg.data:
+                self. wheel1_special.publish(self.wheel1_special_msg)
+            if self.wheel2_special and self.wheel2_special_msg.data:
+                self.wheel2_special.publish(self.wheel2_special_msg)
+            
+            # Clear special commands after publishing
+            if self.knee_special_msg.data or self.hip_special_msg. data or \
+               self.wheel1_special_msg.data or self.wheel2_special_msg.data:
+                self.knee_special_msg.data = ""
+                self.hip_special_msg.data = ""
+                self.wheel1_special_msg. data = ""
+                self.wheel2_special_msg.data = ""
+            
+            # Publish regular commands
             if self.knee_cmd_pub:
-                self.knee_cmd_pub.publish(self.knee_cmd)
+                self.knee_cmd_pub.publish(self. knee_cmd)
 
             if self.hip_cmd_pub:
-                self.hip_cmd_pub.publish(self.hip_cmd)
+                self.hip_cmd_pub.publish(self. hip_cmd)
 
             if self.wheel1_cmd_pub and self.wheel2_cmd_pub:
-                self.wheel1_cmd_pub.publish(self.wheel_cmd)
+                self.wheel1_cmd_pub. publish(self.wheel_cmd)
                 self.wheel2_cmd_pub.publish(self.wheel_cmd)
 
     def _handle_temperature(self, temp, motor_name):
         """
-        Helper function to handle temperature monitoring for any motor.
+        Helper function to handle temperature monitoring for any motor. 
         """
         if temp > self.temp_limit_c and not self.shutdown_triggered:
             self.get_logger().error(
@@ -341,32 +364,26 @@ class MainControlLoop(Node):
 
     def start_motors(self):
         """Start all motors by sending a start command"""
-        special_msg = String()
-        special_msg.data = "start"
-
-        self.special_msg = special_msg
-        self.knee_special = special_msg
-        self.hip_special = special_msg
-        self.wheel1_special = special_msg
-        self.wheel2_special = special_msg
+        with self._lock:
+            self.knee_special_msg.data = "start"
+            self.hip_special_msg.data = "start"
+            self.wheel1_special_msg.data = "start"
+            self.wheel2_special_msg.data = "start"
 
     def kill_motors(self):
         """Kill all motors by sending exit command"""
-        special_msg = String()
-        special_msg.data = "exit"
-
-        self.special_msg = special_msg
-        self.knee_special = special_msg
-        self.hip_special = special_msg
-        self.wheel1_special = special_msg
-        self.wheel2_special = special_msg
+        with self._lock:
+            self.knee_special_msg.data = "exit"
+            self.hip_special_msg.data = "exit"
+            self.wheel1_special_msg.data = "exit"
+            self.wheel2_special_msg.data = "exit"
 
     def knee_state_callback(self, msg):
         """Callback for knee state information"""
         try:
             # Update knee state variables with actual motor state data
-            self.knee_pos = msg.abs_position  # Use absolute position for control
-            self.knee_vel = msg.velocity
+            self.knee_pos = msg. abs_position  # Use absolute position for control
+            self. knee_vel = msg.velocity
             self.knee_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
             self._handle_temperature(temperature, "knee")
@@ -379,19 +396,19 @@ class MainControlLoop(Node):
 
     def hip_state_callback(self, msg):
         """Callback for hip state information"""
-        try:
+        try: 
             # Update hip state variables with actual motor state data
-            self.hip_pos = msg.abs_position  # Use absolute position for control
+            self. hip_pos = msg.abs_position  # Use absolute position for control
             self.hip_vel = msg.velocity
             self.hip_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
             self._handle_temperature(temperature, "hip")
 
             self.get_logger().debug(
-                f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg.torque:.3f}"
+                f"Hip state - Pos: {self.hip_pos:.3f}, Vel: {self.hip_vel:.3f}, Torque: {msg. torque:.3f}"
             )
 
-        except Exception as e:
+        except Exception as e: 
             self.get_logger().error(f"Error processing hip state: {e}")
 
     def wheel1_state_callback(self, msg):
@@ -405,10 +422,10 @@ class MainControlLoop(Node):
             self._handle_temperature(temperature, "wheel1")
 
             self.get_logger().debug(
-                f"Wheel1 state - Pos: {self.wheel1_pos:.3f}, Vel: {self.wheel1_vel:.3f}, Torque: {msg.torque:.3f}"
+                f"Wheel1 state - Pos: {self.wheel1_pos:.3f}, Vel: {self. wheel1_vel:.3f}, Torque: {msg.torque:.3f}"
             )
 
-        except Exception as e:
+        except Exception as e: 
             self.get_logger().error(f"Error processing wheel1 state: {e}")
 
     def wheel2_state_callback(self, msg):
@@ -416,7 +433,7 @@ class MainControlLoop(Node):
         try:
             # Update wheel2 state variables with actual motor state data
             self.wheel2_pos = msg.position  # Use absolute position for control
-            self.wheel2_vel = msg.velocity
+            self. wheel2_vel = msg.velocity
             self.wheel2_torque = msg.torque  # Update torque value
             temperature = msg.temperature  # Current temperature
             self._handle_temperature(temperature, "wheel2")
@@ -426,7 +443,7 @@ class MainControlLoop(Node):
             )
 
         except Exception as e:
-            self.get_logger().error(f"Error processing wheel2 state: {e}")
+            self. get_logger().error(f"Error processing wheel2 state: {e}")
 
     def knee_error_callback(self, msg):
         self._error_callback(msg, "knee")
@@ -457,13 +474,13 @@ class MainControlLoop(Node):
 
     def nearest_pi_knee(self, angle):
         value = 0.5 * 6 * 30 / 15
-        near_pi = np.round(angle / value) * value
+        near_pi = np. round(angle / value) * value
         return near_pi
 
     def reset_pos(self):
         """Reset the motor positions to zero by sending a reset command"""
         special_msg = String()
-        special_msg.data = "zero"
+        special_msg. data = "zero"
         if self.knee_special:
             self.knee_special.publish(special_msg)
         if self.hip_special:
@@ -480,7 +497,7 @@ def main():
     except KeyboardInterrupt:
         main_ctrl.get_logger().info("Shutting down...")
     finally:
-        main_ctrl.destroy_node()
+        main_ctrl. destroy_node()
         rclpy.shutdown()
 
 
