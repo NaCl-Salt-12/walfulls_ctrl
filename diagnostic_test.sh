@@ -38,4 +38,4 @@ fi
 
 echo "Checking motor status on $INTERFACE..."
 
-scripts/check_motor_status.py "$INTERFACE" 1 2 3 4
+scripts/check_motor_status.py " -i $INTERFACE 1 2 3 4"
