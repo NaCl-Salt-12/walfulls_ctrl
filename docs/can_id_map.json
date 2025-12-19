@@ -1,0 +1,10 @@
+{
+	"interface": "can0",
+	"bitrate": 1000000,
+	"nodes": [
+		{ "id": 1, "label": "wheel1" },
+		{ "id": 2, "label": "wheel2" },
+		{ "id": 3, "label": "hip" },
+		{ "id": 4, "label": "knee" }
+	]
+}
