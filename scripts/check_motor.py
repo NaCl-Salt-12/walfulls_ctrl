@@ -169,9 +169,12 @@ def main():
         print(f"\n{'=' * 60}")
         print("TEST SUMMARY")
         print(f"{'=' * 60}")
+
+        max_length = max(len(label) for label in results.items())
+
         for label, responded in results.items():
             status = "✓ ONLINE" if responded else "✗ OFFLINE"
-            print(f"{label}: {status}")
+            print(f"{label:<{max_length}} {status}")
 
         online_count = sum(results.values())
         total_count = len(results)
