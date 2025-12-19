@@ -10,6 +10,10 @@ import sys
 import argparse
 import json
 
+GREEN = "\033[92m"
+RED = "\033[91m"
+RESET = "\033[0m"
+
 # Configuration
 TIMEOUT = 2.0
 
@@ -90,7 +94,7 @@ def test_motor(bus, motor_id, label):
     try:
         # Send the command
         bus.send(msg)
-        print(f"✓ Sent 'Enter Control Mode' command to motor {motor_id}")
+        print(f" Sent 'Enter Control Mode' command to motor {motor_id}")
 
         # Wait for response
         start_time = time.time()
@@ -101,7 +105,7 @@ def test_motor(bus, motor_id, label):
 
             if rx_msg and rx_msg.arbitration_id == motor_id:
                 response_received = True
-                print(f"✓ {label} RESPONDED!")
+                print(f"{label} RESPONDED")
 
                 # Parse and display response
                 parsed = parse_motor_response(rx_msg.data)
@@ -114,19 +118,19 @@ def test_motor(bus, motor_id, label):
                     print(f"  - Error Message: {error_msg}")
 
                     if parsed["error"] == 0:
-                        print("  - Status: ✓ No errors")
+                        print(f"  - Status: {GREEN}No errors{RESET}")
                     else:
-                        print("  - Status: ⚠ Error detected!")
+                        print(f"  - Status: ⚠ {RED}Error detected!{RESET}")
                 break
 
         if not response_received:
-            print(f"✗ {label} did NOT respond (timeout)")
+            print(f"{label} did NOT respond (timeout)")
             return False
 
         return True
 
     except can.CanError as e:
-        print(f"✗ CAN Error for motor {label}: {e}")
+        print(f"CAN Error for motor {label}: {e}")
         return False
 
 
@@ -155,7 +159,7 @@ def main():
         # Initialize CAN bus
         print(f"\nInitializing CAN bus on '{interface}'...")
         bus = can.interface.Bus(bustype="socketcan", channel=interface)
-        print("✓ CAN bus initialized successfully")
+        print("CAN bus initialized successfully")
 
         # Test each motor
         results = {}
@@ -171,7 +175,7 @@ def main():
         print(f"{'=' * 60}")
 
         for label, responded in results.items():
-            status = "✓ ONLINE" if responded else "✗ OFFLINE"
+            status = f"{GREEN}ONLINE{RESET}" if responded else f"{RED}OFFLINE{RESET}"
             print(f"{label:<10} {status}")
 
         online_count = sum(results.values())
@@ -189,14 +193,14 @@ def main():
                     is_extended_id=False,
                 )
                 bus.send(exit_msg)
-                print(f"✓ Exit command sent to motor {node['label']}")
+                print(f"Exit command sent to motor {node['label']}")
 
         # Cleanup
         bus.shutdown()
         print("\n✓ Test complete!")
 
     except Exception as e:
-        print(f"\n✗ Error: {e}")
+        print(f"\n Error: {e}")
         sys.exit(1)
 
 
