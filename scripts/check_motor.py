@@ -94,7 +94,7 @@ def test_motor(bus, motor_id, label):
     try:
         # Send the command
         bus.send(msg)
-        print(f" Sent 'Enter Control Mode' command to motor {motor_id}")
+        print(f"Sent 'Enter Control Mode' command to motor {motor_id}")
 
         # Wait for response
         start_time = time.time()
@@ -105,7 +105,7 @@ def test_motor(bus, motor_id, label):
 
             if rx_msg and rx_msg.arbitration_id == motor_id:
                 response_received = True
-                print(f"{label} RESPONDED")
+                print(f"{GREEN}{label} RESPONDED{RESET}")
 
                 # Parse and display response
                 parsed = parse_motor_response(rx_msg.data)
@@ -124,13 +124,13 @@ def test_motor(bus, motor_id, label):
                 break
 
         if not response_received:
-            print(f"{label} did NOT respond (timeout)")
+            print(f"{RED}{label} did NOT respond (timeout){RESET}")
             return False
 
         return True
 
     except can.CanError as e:
-        print(f"CAN Error for motor {label}: {e}")
+        print(f"{RED}CAN Error for motor {label}: {e}{RESET}")
         return False
 
 
@@ -197,7 +197,7 @@ def main():
 
         # Cleanup
         bus.shutdown()
-        print("\n✓ Test complete!")
+        print("\nTest complete!")
 
     except Exception as e:
         print(f"\n Error: {e}")
